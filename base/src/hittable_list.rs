@@ -24,8 +24,10 @@ impl HittableList {
     }
 
     /// Creates a new `HittableList` containing a `Hittable` object.
-    pub fn from_hittable(obj: Arc<dyn Hittable>) -> Self {
-        Self { objects: vec![obj] }
+    pub fn from_hittable(hittable: Arc<dyn Hittable>) -> Self {
+        Self {
+            objects: vec![hittable],
+        }
     }
 
     /// Creates a new `HittableList` containing multiple `Hittable` objects.
@@ -34,8 +36,8 @@ impl HittableList {
     }
 
     /// Adds a `Hittable` object to the list.
-    pub fn add(&mut self, obj: Arc<dyn Hittable>) {
-        self.objects.push(obj);
+    pub fn add(&mut self, hittable: Arc<dyn Hittable>) {
+        self.objects.push(hittable);
     }
 
     /// Returns true if the list is empty.
@@ -59,8 +61,8 @@ impl Hittable for HittableList {
         let mut closest_so_far = t_max;
         let mut hit_record = None;
 
-        for object in &self.objects {
-            if let Some(hit) = object.hit(ray, t_min, closest_so_far) {
+        for hittable in &self.objects {
+            if let Some(hit) = hittable.hit(ray, t_min, closest_so_far) {
                 closest_so_far = hit.t;
                 hit_record = Some(hit);
             }

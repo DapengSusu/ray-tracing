@@ -1,6 +1,6 @@
 use std::{
     fmt::Display,
-    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
+    ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
 /// Vector with three components.
@@ -233,10 +233,10 @@ impl Vec3 {
     ///
     /// Tip: v.x * v.x + v.y * v.y + v.z * v.z
     pub fn length_squared(&self) -> f64 {
-        self.x * self.x + self.y * self.y + self.z * self.z
+        self.dot_self()
     }
 
-    /// Returns the length of the vector.
+    /// Returns the length of the vector. (magnitude)
     ///
     /// Tip: v.length_squared().sqrt()
     pub fn length(&self) -> f64 {
@@ -280,6 +280,22 @@ impl<'a> Iterator for Vec3Iter<'a> {
             2 => Some(self.vec3.y),
             3 => Some(self.vec3.z),
             _ => None,
+        }
+    }
+}
+
+impl Index<u8> for Vec3 {
+    type Output = f64;
+
+    fn index(&self, index: u8) -> &Self::Output {
+        match index {
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.z,
+            _ => panic!(
+                "Index out of bounds, only 0, 1, 2 are valid indices, but got {}",
+                index
+            ),
         }
     }
 }
@@ -592,5 +608,14 @@ mod tests {
         let v = Vec3::from_xyz(1., 2., 3.);
 
         assert_eq!(v.to_unit().length(), 1.);
+    }
+
+    #[test]
+    fn vec3_index_should_work() {
+        let v = Vec3::from_xyz(1., 2., 3.);
+
+        assert_eq!(v[0], 1.);
+        assert_eq!(v[1], 2.);
+        assert_eq!(v[2], 3.);
     }
 }

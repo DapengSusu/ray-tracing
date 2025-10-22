@@ -2,6 +2,9 @@
 resolver = "2"
 members = ["app", "base"]
 
+[workspace.dependencies]
+rayon = "1" # 并行处理
+
 [profile.release]
 codegen-units = 1
 lto = true
