@@ -1,25 +1,72 @@
 use std::{
     io::{self, BufWriter, Write},
-    sync::atomic::{AtomicUsize, Ordering},
+    sync::atomic::{AtomicU32, Ordering},
     time::Instant,
 };
 
+use ray_tracing_base::{Color, Point3, Ray, Vec3};
 use rayon::prelude::*;
+
+const ASPECT_RATIO: f64 = 16. / 9.;
+
+/// Return the color for a given scene ray
+fn ray_color(ray: &Ray) -> Color {
+    let direction = ray.direction.to_unit();
+    let a = 0.5 * (direction.y + 1.);
+
+    (1. - a) * Color::one() + a * Color::from_xyz(0.5, 0.7, 1.)
+}
+
+/// Translate a color into a tuple of bytes
+fn translate_color(pixel_color: Color) -> (u8, u8, u8) {
+    let (r, g, b) = pixel_color.into();
+    // let r = i as f64 / (image_width - 1) as f64;
+    // let g = j as f64 / (image_height - 1) as f64;
+    // let b = 0.;
+
+    // translate the [0, 1] component values to the byte range [0, 255]
+    (
+        (254.999 * r) as u8,
+        (254.999 * g) as u8,
+        (254.999 * b) as u8,
+    )
+}
 
 fn main() -> Result<(), io::Error> {
     // Image
-    let image_width: usize = 256;
-    let image_height: usize = 256;
+    let image_width: u32 = 400;
+    // Calculate the image height, and ensure that it's at least 1.
+    let image_height = (image_width as f64 / ASPECT_RATIO) as u32;
+    let image_height = image_height.max(1);
 
-    // Start timer
-    let now = Instant::now();
+    // Camera
+    let focal_length = 1.;
+    let viewport_height = 2.;
+    let viewport_width = viewport_height * (image_width as f64 / image_height as f64);
+    let camera_center = Point3::zero();
+
+    // Calculate the vectors across the horizontal and down the vertical viewport edges.
+    let viewport_u = Vec3::from_x(viewport_width);
+    let viewport_v = Vec3::from_y(-viewport_height);
+
+    // Calculate the horizontal and vertical delta vectors from pixel to pixel.
+    let pixel_delta_u = viewport_u / image_width;
+    let pixel_delta_v = viewport_v / image_height;
+
+    // Calculate the location of the upper left pixel.
+    let viewport_upper_left =
+        camera_center - Vec3::from_z(focal_length) - viewport_u / 2 - viewport_v / 2;
+    let pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
     // Writer
     let stdout = io::stdout();
     let mut writer = BufWriter::new(stdout.lock());
 
     // Remaining lines
-    let remaining_lines = AtomicUsize::new(image_height);
+    let remaining_lines = AtomicU32::new(image_height);
+
+    // Start timer
+    let now = Instant::now();
 
     // Render
     writer.write_all(b"P3\n")?;
@@ -30,17 +77,15 @@ fn main() -> Result<(), io::Error> {
         .into_par_iter()
         .map(|j| {
             let row = (0..image_width)
+                .into_par_iter()
                 .map(|i| {
-                    let r = i as f64 / (image_width - 1) as f64;
-                    let g = j as f64 / (image_height - 1) as f64;
-                    let b = 0.;
+                    let pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
+                    let ray_direction = pixel_center - camera_center;
+                    let ray = Ray::new(camera_center, ray_direction);
 
-                    // translate the [0, 1] component values to the byte range [0, 255]
-                    (
-                        (255.999 * r) as u8,
-                        (255.999 * g) as u8,
-                        (255.999 * b) as u8,
-                    )
+                    let pixel_color = ray_color(&ray);
+
+                    translate_color(pixel_color)
                 })
                 .collect::<Vec<_>>();
 
