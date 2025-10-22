@@ -1,10 +1,13 @@
 use std::{
     io::{self, BufWriter, Write},
-    sync::atomic::{AtomicU32, Ordering},
+    sync::{
+        Arc,
+        atomic::{AtomicU32, Ordering},
+    },
     time::Instant,
 };
 
-use ray_tracing_base::{Color, Point3, Ray, Vec3};
+use ray_tracing_base::{Color, Hittable, HittableList, Point3, Ray, Sphere, Vec3};
 use rayon::prelude::*;
 
 /// aspect ratio, like 16:9, 4:3, etc.
@@ -25,7 +28,11 @@ fn hit_sphere(center: &Point3, radius: f64, ray: &Ray) -> f64 {
 }
 
 /// Return the color for a given scene ray
-fn ray_color(ray: &Ray) -> Color {
+fn ray_color<H: Hittable>(ray: &Ray, world: Arc<H>) -> Color {
+    if let Some(hit) = world.hit(ray, 0., f64::INFINITY) {
+        return 0.5 * (hit.normal + Color::one());
+    }
+
     let t = hit_sphere(&Point3::from_z(-1.), 0.5, ray);
     if t > 0. {
         let normal = (ray.at(t) - Vec3::from_z(-1.)).to_unit();
@@ -56,6 +63,12 @@ fn main() -> Result<(), io::Error> {
     // Calculate the image height, and ensure that it's at least 1.
     let image_height = (image_width as f64 / ASPECT_RATIO) as u32;
     let image_height = image_height.max(1);
+
+    // World
+    let world = Arc::new(HittableList::from_hittables(vec![
+        Arc::new(Sphere::new(Point3::from_z(-1.), 0.5)),
+        Arc::new(Sphere::new(Point3::from_yz(-100.5, -1.), 100.)),
+    ]));
 
     // Camera
     let focal_length = 1.;
@@ -91,6 +104,7 @@ fn main() -> Result<(), io::Error> {
     writer.write_all(format!("{image_width} {image_height}\n").as_bytes())?;
     writer.write_all(b"255\n")?;
 
+    let world = world.clone();
     let rows = (0..image_height)
         .into_par_iter() // rayon parallelize
         .map(|j| {
@@ -101,7 +115,7 @@ fn main() -> Result<(), io::Error> {
                     let ray_direction = pixel_center - camera_center;
                     let ray = Ray::new(camera_center, ray_direction);
 
-                    let pixel_color = ray_color(&ray);
+                    let pixel_color = ray_color(&ray, world.clone());
 
                     translate_color(pixel_color)
                 })

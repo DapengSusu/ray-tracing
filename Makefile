@@ -21,6 +21,9 @@ run:
 clean:
 	cargo clean
 
+# 仅构建
+b: build
+
 # 仅构建和测试
 bt: build test
 
