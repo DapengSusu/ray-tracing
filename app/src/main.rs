@@ -10,21 +10,26 @@ use rayon::prelude::*;
 /// aspect ratio, like 16:9, 4:3, etc.
 const ASPECT_RATIO: f64 = 16. / 9.;
 
-/// Return true if the ray hits the sphere
-fn hit_sphere(center: &Point3, radius: f64, ray: &Ray) -> bool {
+fn hit_sphere(center: &Point3, radius: f64, ray: &Ray) -> f64 {
     let oc = *center - ray.origin;
-    let a = ray_tracing_base::dot(&ray.direction, &ray.direction);
-    let b = -2. * ray_tracing_base::dot(&ray.direction, &oc);
-    let c = ray_tracing_base::dot(&oc, &oc) - radius * radius;
+    let a = ray.direction.dot_self();
+    let b = -2. * ray.direction.dot(&oc);
+    let c = oc.dot_self() - radius * radius;
     let discriminant = b * b - 4. * a * c;
 
-    discriminant >= 0.
+    if discriminant >= 0. {
+        (-b - discriminant.sqrt()) / (2. * a)
+    } else {
+        -1.
+    }
 }
 
 /// Return the color for a given scene ray
 fn ray_color(ray: &Ray) -> Color {
-    if hit_sphere(&Point3::from_z(-1.), 0.5, ray) {
-        return Color::from_x(1.);
+    let t = hit_sphere(&Point3::from_z(-1.), 0.5, ray);
+    if t > 0. {
+        let normal = (ray.at(t) - Vec3::from_z(-1.)).to_unit();
+        return 0.5 * Color::from_xyz(normal.x + 1., normal.y + 1., normal.z + 1.);
     }
 
     let direction = ray.direction.to_unit();

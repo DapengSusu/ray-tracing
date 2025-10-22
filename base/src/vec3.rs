@@ -178,6 +178,21 @@ impl Vec3 {
         dot(self, other)
     }
 
+    /// Returns the dot product of a vector with itself.
+    ///
+    /// Tip: v.dot(&v)
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use ray_tracing_base::Vec3;
+    /// let v = Vec3::from_xyz(1., 2., 3.);
+    /// assert_eq!(v.dot_self(), v.dot(&v));
+    /// ```
+    pub fn dot_self(&self) -> f64 {
+        dot(self, self)
+    }
+
     /// Returns the cross product of two vectors. (Be like: v1 x v2)
     ///
     /// # Examples
