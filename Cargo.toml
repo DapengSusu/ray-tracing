@@ -1,0 +1,8 @@
+[workspace]
+resolver = "2"
+members = ["app"]
+
+[profile.release]
+codegen-units = 1
+panic = "abort"
+lto = true
