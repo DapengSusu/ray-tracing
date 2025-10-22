@@ -35,6 +35,7 @@ fn main() -> Result<(), io::Error> {
                     let g = j as f64 / (image_height - 1) as f64;
                     let b = 0.;
 
+                    // translate the [0, 1] component values to the byte range [0, 255]
                     (
                         (255.999 * r) as u8,
                         (255.999 * g) as u8,

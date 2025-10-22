@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["app"]
+members = ["app", "base"]
 
 [profile.release]
 codegen-units = 1
