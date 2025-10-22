@@ -7,10 +7,26 @@ use std::{
 use ray_tracing_base::{Color, Point3, Ray, Vec3};
 use rayon::prelude::*;
 
+/// aspect ratio, like 16:9, 4:3, etc.
 const ASPECT_RATIO: f64 = 16. / 9.;
+
+/// Return true if the ray hits the sphere
+fn hit_sphere(center: &Point3, radius: f64, ray: &Ray) -> bool {
+    let oc = *center - ray.origin;
+    let a = ray_tracing_base::dot(&ray.direction, &ray.direction);
+    let b = -2. * ray_tracing_base::dot(&ray.direction, &oc);
+    let c = ray_tracing_base::dot(&oc, &oc) - radius * radius;
+    let discriminant = b * b - 4. * a * c;
+
+    discriminant >= 0.
+}
 
 /// Return the color for a given scene ray
 fn ray_color(ray: &Ray) -> Color {
+    if hit_sphere(&Point3::from_z(-1.), 0.5, ray) {
+        return Color::from_x(1.);
+    }
+
     let direction = ray.direction.to_unit();
     let a = 0.5 * (direction.y + 1.);
 
@@ -20,9 +36,6 @@ fn ray_color(ray: &Ray) -> Color {
 /// Translate a color into a tuple of bytes
 fn translate_color(pixel_color: Color) -> (u8, u8, u8) {
     let (r, g, b) = pixel_color.into();
-    // let r = i as f64 / (image_width - 1) as f64;
-    // let g = j as f64 / (image_height - 1) as f64;
-    // let b = 0.;
 
     // translate the [0, 1] component values to the byte range [0, 255]
     (
@@ -74,10 +87,10 @@ fn main() -> Result<(), io::Error> {
     writer.write_all(b"255\n")?;
 
     let rows = (0..image_height)
-        .into_par_iter()
+        .into_par_iter() // rayon parallelize
         .map(|j| {
             let row = (0..image_width)
-                .into_par_iter()
+                .into_par_iter() // rayon parallelize
                 .map(|i| {
                     let pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
                     let ray_direction = pixel_center - camera_center;
