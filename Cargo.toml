@@ -4,5 +4,4 @@ members = ["app"]
 
 [profile.release]
 codegen-units = 1
-panic = "abort"
 lto = true
