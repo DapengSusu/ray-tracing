@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{HitRecord, Hittable, interval::Interval, ray::Ray};
+use crate::prelude::*;
 
 /// A collection of Hittable objects.
 #[derive(Default)]

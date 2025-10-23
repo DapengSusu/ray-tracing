@@ -127,6 +127,18 @@ impl Vec3 {
         }
     }
 
+    /// Return true if the vector is close to zero in all dimensions.
+    pub fn near_zero(&self) -> bool {
+        self.near_zero_by(Some(1e-8))
+    }
+
+    /// Return true if the vector is close to zero in all dimensions.
+    pub fn near_zero_by(&self, epsilon: Option<f64>) -> bool {
+        let epsilon = epsilon.unwrap_or(1e-8).max(1e-12);
+
+        self.x.abs() < epsilon && self.y.abs() < epsilon && self.z.abs() < epsilon
+    }
+
     /// Creates a new vector with all components set to the given value.
     ///
     /// # Examples
@@ -278,7 +290,7 @@ impl Vec3 {
     /// );
     /// assert_eq!(v3, v4);
     /// ```
-    pub fn cross(&self, other: &Self) -> Vec3 {
+    pub fn cross(&self, other: &Self) -> Self {
         cross(self, other)
     }
 
@@ -296,8 +308,23 @@ impl Vec3 {
     /// # Note
     ///
     /// Need to calculate the length of the vector by using `sqrt()`
-    pub fn to_unit(&self) -> Vec3 {
+    pub fn to_unit(&self) -> Self {
         unit_vec3(self)
+    }
+
+    /// Returns the reflection vector.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use ray_tracing_base::Vec3;
+    /// let v = Vec3::with_xyz(1., 2., 3.);
+    /// let n = Vec3::with_xyz(0., 1., 0.);
+    /// let r = v.reflect(&n);
+    /// assert_eq!(r, Vec3::with_xyz(1., -2., 3.));
+    /// ```
+    pub fn reflect(&self, other: &Self) -> Self {
+        reflect(self, other)
     }
 
     /// Returns the squared length of the vector.
@@ -332,6 +359,11 @@ pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
 /// Returns the unit vector of a vector.
 pub fn unit_vec3(v: &Vec3) -> Vec3 {
     *v / v.length()
+}
+
+/// Returns the reflection of a vector.
+pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
+    *v - 2. * dot(v, n) * *n
 }
 
 /// Iterator over the components of a vector.

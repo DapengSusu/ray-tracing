@@ -1,32 +1,27 @@
 mod camera;
-mod hittable;
-mod hittable_list;
 mod ray;
-mod sphere;
-mod vec3;
 
 pub mod color;
 pub mod common;
+pub mod hittable;
 pub mod interval;
+pub mod material;
+pub mod vec3;
 
-pub use crate::vec3::*;
+pub use camera::Camera;
+pub use ray::Ray;
 pub use vec3::Vec3 as Point3;
 pub use vec3::Vec3 as Color;
+pub use vec3::{Vec3, Vec3Iter};
 
 /// Prelude module for importing commonly used types and traits.
 pub mod prelude {
-    pub use crate::hittable::{HitRecord, Hittable};
+    pub use crate::camera::Camera;
+    pub use crate::hittable::{HitRecord, Hittable, HittableList, Sphere};
     pub use crate::interval::Interval;
+    pub use crate::material::{Lambertian, Material, Metal};
     pub use crate::ray::Ray;
     pub use crate::vec3::Vec3 as Point3;
     pub use crate::vec3::Vec3 as Color;
-    pub use crate::vec3::*;
+    pub use crate::vec3::{Vec3, Vec3Iter};
 }
-
-pub use camera::*;
-pub use hittable::{HitRecord, Hittable};
-pub use hittable_list::HittableList;
-pub use sphere::Sphere;
-
-#[cfg(test)]
-mod tests {}

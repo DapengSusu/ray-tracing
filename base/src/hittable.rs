@@ -1,11 +1,20 @@
-use crate::{Point3, Vec3, interval::Interval, ray::Ray};
+mod hittable_list;
+mod sphere;
 
-#[derive(Debug, Default)]
+pub use hittable_list::HittableList;
+pub use sphere::Sphere;
+
+use std::sync::Arc;
+
+use crate::{Point3, Vec3, interval::Interval, material::Material, ray::Ray};
+
+#[derive(Default)]
 pub struct HitRecord {
     pub t: f64,
     pub p: Point3,
     pub normal: Vec3,
     pub front_face: bool,
+    pub material: Option<Arc<dyn Material>>,
 }
 
 impl HitRecord {
@@ -23,6 +32,12 @@ impl HitRecord {
     /// Sets the parameter `p` of the hit record.
     pub fn set_p(mut self, p: Point3) -> Self {
         self.p = p;
+        self
+    }
+
+    /// Sets the parameter `material` of the hit record.
+    pub fn set_material(mut self, material: Option<Arc<dyn Material>>) -> Self {
+        self.material = material;
         self
     }
 

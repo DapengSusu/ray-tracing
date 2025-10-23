@@ -42,11 +42,14 @@ fn ray_color<H: Hittable>(ray: Ray, depth: u32, world: Arc<H>) -> Color {
         return Color::zero();
     }
 
-    if let Some(hit) = world.hit(&ray, Interval::new(0.001, f64::INFINITY)) {
-        let direction = hit.normal + Vec3::random_unit_vector();
-
-        // reflectance is 0.5（反射率）
-        return 0.5 * ray_color(Ray::new(hit.p, direction), depth - 1, world.clone());
+    if let Some(hit) = world.hit(&ray, Interval::new(0.001, f64::INFINITY))
+        && let Some(material) = &hit.material
+    {
+        if let Some((attenuation, scattered)) = material.scatter(&ray, &hit) {
+            return attenuation * ray_color(scattered, depth - 1, world.clone());
+        } else {
+            return Color::zero();
+        }
     }
 
     let direction = ray.direction.to_unit();
