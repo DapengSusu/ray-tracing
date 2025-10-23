@@ -8,7 +8,8 @@ use ray_tracing_base::prelude::*;
 fn main() -> Result<(), io::Error> {
     let material_ground = Arc::new(Lambertian::new(Color::with_xyz(0.8, 0.8, 0.)));
     let material_center = Arc::new(Lambertian::new(Color::with_xyz(0.1, 0.2, 0.5)));
-    let material_left = Arc::new(Dielectric::new(1. / 1.33));
+    let material_left = Arc::new(Dielectric::new(1.5));
+    let material_bubble = Arc::new(Dielectric::new(1. / 1.5));
     let material_right = Arc::new(Metal::new(Color::with_xyz(0.8, 0.6, 0.2), 1.));
 
     // World
@@ -27,6 +28,11 @@ fn main() -> Result<(), io::Error> {
             Point3::with_xz(-1., -1.),
             0.5,
             Some(material_left),
+        )),
+        Arc::new(Sphere::new(
+            Point3::with_xz(-1., -1.),
+            0.4,
+            Some(material_bubble),
         )),
         Arc::new(Sphere::new(
             Point3::with_xz(1., -1.),
