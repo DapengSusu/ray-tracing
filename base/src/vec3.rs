@@ -4,6 +4,8 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
+use crate::common;
+
 /// Vector with three components.
 #[derive(Debug, Default, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Vec3 {
@@ -59,6 +61,70 @@ impl Vec3 {
     /// ```
     pub fn one() -> Self {
         Self::with_xyz(1., 1., 1.)
+    }
+
+    /// Creates a new vector with randoms value between 0 and 1.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use ray_tracing_base::Vec3;
+    /// let v = Vec3::random();
+    /// assert!(v.x >= 0. && v.x < 1.);
+    /// assert!(v.y >= 0. && v.y < 1.);
+    /// assert!(v.z >= 0. && v.z < 1.);
+    /// ```
+    pub fn random() -> Self {
+        Self::with_xyz(common::random(), common::random(), common::random())
+    }
+
+    /// Creates a new vector with random values between the given minimum and maximum values.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use ray_tracing_base::Vec3;
+    /// let v = Vec3::random_range(-1., 1.);
+    /// assert!(v.x >= -1. && v.x < 1.);
+    /// assert!(v.y >= -1. && v.y < 1.);
+    /// assert!(v.z >= -1. && v.z < 1.);
+    /// ```
+    pub fn random_range(min: f64, max: f64) -> Self {
+        Self::with_xyz(
+            common::random_range(min, max),
+            common::random_range(min, max),
+            common::random_range(min, max),
+        )
+    }
+
+    /// generate the random vector inside the unit sphere (that is, a sphere of radius 1).
+    /// Pick a random point inside the cube enclosing the unit sphere. If this point
+    /// lies outside the unit sphere, then generate a new one until we find one that
+    /// lies inside or on the unit sphere.
+    fn random_unit_vector() -> Self {
+        loop {
+            let p = Self::random_range(-1., 1.);
+            let lensq = p.length_squared();
+
+            if f64::EPSILON < lensq && lensq < 1. {
+                return p / lensq.sqrt();
+            }
+        }
+    }
+
+    /// Take the dot product of the surface normal and our random vector to determine
+    /// if it's in the correct hemisphere. If the dot product is positive, then the vector
+    /// is in the correct hemisphere. If the dot product is negative,
+    /// then we need to invert the vector.
+    pub fn random_on_hemisphere(normal: &Vec3) -> Self {
+        let on_unit_sphere = Self::random_unit_vector();
+
+        if on_unit_sphere.dot(normal) > 0. {
+            // In the same hemisphere as the normal
+            on_unit_sphere
+        } else {
+            -on_unit_sphere
+        }
     }
 
     /// Creates a new vector with all components set to the given value.

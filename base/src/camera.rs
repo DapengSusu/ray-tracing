@@ -34,9 +34,10 @@ pub struct Camera {
 }
 
 // Return the color for a given scene ray
-fn ray_color<H: Hittable>(ray: &Ray, world: Arc<H>) -> Color {
-    if let Some(hit) = world.hit(ray, Interval::new(0., f64::INFINITY)) {
-        return 0.5 * (hit.normal + Color::one());
+fn ray_color<H: Hittable>(ray: Ray, world: Arc<H>) -> Color {
+    if let Some(hit) = world.hit(&ray, Interval::new(0., f64::INFINITY)) {
+        let direction = Vec3::random_on_hemisphere(&hit.normal);
+        return 0.5 * ray_color(Ray::new(hit.p, direction), world.clone());
     }
 
     let direction = ray.direction.to_unit();
@@ -148,7 +149,7 @@ impl Camera {
                             .map(|_| {
                                 let ray = self.sample_ray(i, j);
 
-                                ray_color(&ray, world.clone())
+                                ray_color(ray, world.clone())
                             })
                             .sum();
 
@@ -181,7 +182,7 @@ impl Camera {
     }
 
     fn initialize(mut self) -> Self {
-        if (self.aspect_ratio - 0.).abs() < f64::EPSILON {
+        if self.aspect_ratio.abs() < f64::EPSILON {
             panic!("Aspect ratio cannot be zero");
         }
 
