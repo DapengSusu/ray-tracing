@@ -1,3 +1,4 @@
+mod camera;
 mod common;
 mod hittable;
 mod hittable_list;
@@ -17,6 +18,7 @@ pub mod prelude {
     pub use crate::vec3::*;
 }
 
+pub use camera::*;
 pub use common::{Degrees, Radians};
 pub use hittable::{HitRecord, Hittable};
 pub use hittable_list::HittableList;
