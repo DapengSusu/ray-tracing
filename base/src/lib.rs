@@ -5,6 +5,7 @@ mod ray;
 mod sphere;
 mod vec3;
 
+pub mod color;
 pub mod common;
 pub mod interval;
 

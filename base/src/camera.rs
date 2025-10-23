@@ -1,7 +1,7 @@
 use std::{
     io::{self, BufWriter, Write},
     sync::{
-        Arc, LazyLock,
+        Arc,
         atomic::{AtomicU32, Ordering},
     },
     time::Instant,
@@ -9,7 +9,7 @@ use std::{
 
 use rayon::prelude::*;
 
-use crate::{common, prelude::*};
+use crate::{color, common, prelude::*};
 
 #[derive(Debug)]
 pub struct Camera {
@@ -45,6 +45,7 @@ fn ray_color<H: Hittable>(ray: Ray, depth: u32, world: Arc<H>) -> Color {
     if let Some(hit) = world.hit(&ray, Interval::new(0.001, f64::INFINITY)) {
         let direction = hit.normal + Vec3::random_unit_vector();
 
+        // reflectance is 0.5（反射率）
         return 0.5 * ray_color(Ray::new(hit.p, direction), depth - 1, world.clone());
     }
 
@@ -57,20 +58,6 @@ fn ray_color<H: Hittable>(ray: Ray, depth: u32, world: Arc<H>) -> Color {
 fn sample_square() -> Vec3 {
     // Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
     Vec3::with_xy(common::random() - 0.5, common::random() - 0.5)
-}
-
-static INTENSITY: LazyLock<Interval> = LazyLock::new(|| Interval::new(0., 0.999));
-
-// Translate a color into a tuple of bytes
-fn translate_color(pixel_color: Color) -> (u8, u8, u8) {
-    let (r, g, b) = pixel_color.into();
-
-    // translate the [0, 1] component values to the byte range [0, 255]
-    (
-        (255. * INTENSITY.clamp(r)) as u8,
-        (255. * INTENSITY.clamp(g)) as u8,
-        (255. * INTENSITY.clamp(b)) as u8,
-    )
 }
 
 impl Camera {
@@ -169,7 +156,7 @@ impl Camera {
                             })
                             .sum();
 
-                        translate_color(self.pixel_samples_scale * pixel_color)
+                        color::translate_color(self.pixel_samples_scale * pixel_color)
                     })
                     .collect::<Vec<_>>();
 
