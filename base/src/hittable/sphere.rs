@@ -3,9 +3,9 @@ use std::sync::Arc;
 use crate::prelude::*;
 
 pub struct Sphere {
-    pub center: Point3,
-    pub radius: f64,
-    pub material: Option<Arc<dyn Material>>,
+    center: Point3,
+    radius: f64,
+    material: Option<Arc<dyn Material>>,
 }
 
 impl Sphere {

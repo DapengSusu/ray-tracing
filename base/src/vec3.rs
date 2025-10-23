@@ -312,21 +312,6 @@ impl Vec3 {
         unit_vec3(self)
     }
 
-    /// Returns the reflection vector.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use ray_tracing_base::Vec3;
-    /// let v = Vec3::with_xyz(1., 2., 3.);
-    /// let n = Vec3::with_xyz(0., 1., 0.);
-    /// let r = v.reflect(&n);
-    /// assert_eq!(r, Vec3::with_xyz(1., -2., 3.));
-    /// ```
-    pub fn reflect(&self, other: &Self) -> Self {
-        reflect(self, other)
-    }
-
     /// Returns the squared length of the vector.
     ///
     /// Tip: v.x * v.x + v.y * v.y + v.z * v.z
@@ -361,9 +346,18 @@ pub fn unit_vec3(v: &Vec3) -> Vec3 {
     *v / v.length()
 }
 
-/// Returns the reflection of a vector.
+/// Calculates the reflection.
 pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
     *v - 2. * dot(v, n) * *n
+}
+
+/// Calculates the refraction.
+pub fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f64) -> Vec3 {
+    let cos_theta = (-*uv).dot(n).min(1.);
+    let r_out_perp = etai_over_etat * (*uv + cos_theta * *n);
+    let r_out_parallel = -((1. - r_out_perp.length_squared()).abs().sqrt()) * *n;
+
+    r_out_perp + r_out_parallel
 }
 
 /// Iterator over the components of a vector.

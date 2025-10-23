@@ -3,8 +3,8 @@ use crate::{prelude::*, vec3};
 /// Metal material
 #[derive(Default)]
 pub struct Metal {
-    pub albedo: Color,
-    pub fuzz: f64,
+    albedo: Color,
+    fuzz: f64,
 }
 
 impl Metal {

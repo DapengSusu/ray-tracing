@@ -3,7 +3,7 @@ use crate::prelude::*;
 /// Lambertian material
 #[derive(Default)]
 pub struct Lambertian {
-    pub albedo: Color,
+    albedo: Color,
 }
 
 impl Lambertian {
