@@ -42,7 +42,7 @@ fn ray_color<H: Hittable>(ray: Ray, depth: u32, world: Arc<H>) -> Color {
         return Color::zero();
     }
 
-    if let Some(hit) = world.hit(&ray, Interval::new(0., f64::INFINITY)) {
+    if let Some(hit) = world.hit(&ray, Interval::new(0.001, f64::INFINITY)) {
         let direction = Vec3::random_on_hemisphere(&hit.normal);
 
         return 0.5 * ray_color(Ray::new(hit.p, direction), depth - 1, world.clone());
