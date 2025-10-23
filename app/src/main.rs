@@ -13,7 +13,12 @@ fn main() -> Result<(), io::Error> {
     ]));
 
     // Camera render
-    Camera::new(16. / 9., 400).render(world)?;
+    Camera::builder()
+        .set_aspect_ratio(16. / 9.)
+        .set_image_width(400)
+        .set_samples_per_pixel(100)
+        .build()
+        .render(world)?;
 
     Ok(())
 }

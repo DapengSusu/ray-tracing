@@ -49,6 +49,16 @@ impl Interval {
     pub fn size(&self) -> f64 {
         self.max - self.min
     }
+
+    /// Clamp a value to the interval.
+    ///
+    /// # Tip
+    ///
+    /// x.max(min).min(max)
+    /// min <= x && x <= max
+    pub fn clamp(&self, x: f64) -> f64 {
+        x.max(self.min).min(self.max)
+    }
 }
 
 // Default interval is empty
@@ -96,5 +106,15 @@ mod tests {
         let interval = Interval::new(1.2, 2.5);
 
         assert_eq!(interval.size(), 1.3);
+    }
+
+    #[test]
+    fn interval_clamp_should_work() {
+        let interval = Interval::new(1.2, 2.5);
+
+        assert_eq!(interval.clamp(0.5), 1.2);
+        assert_eq!(interval.clamp(1.5), 1.5);
+        assert_eq!(interval.clamp(2.5), 2.5);
+        assert_eq!(interval.clamp(3.0), 2.5);
     }
 }

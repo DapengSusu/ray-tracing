@@ -1,5 +1,6 @@
 use std::{
     fmt::Display,
+    iter::Sum,
     ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
@@ -304,6 +305,12 @@ impl Index<u8> for Vec3 {
     }
 }
 
+impl Sum for Vec3 {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Vec3::zero(), |acc, v| acc + v)
+    }
+}
+
 impl Display for Vec3 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{} {} {}", self.x, self.y, self.z)
@@ -331,7 +338,7 @@ impl Neg for Vec3 {
 }
 
 // v1 + v2
-impl Add<Self> for Vec3 {
+impl Add for Vec3 {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -344,7 +351,7 @@ impl Add<Self> for Vec3 {
 }
 
 // v1 - v2
-impl Sub<Self> for Vec3 {
+impl Sub for Vec3 {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -357,7 +364,7 @@ impl Sub<Self> for Vec3 {
 }
 
 // v1 * v2
-impl Mul<Self> for Vec3 {
+impl Mul for Vec3 {
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self::Output {
@@ -410,7 +417,7 @@ impl Mul<Vec3> for u32 {
 }
 
 // v1 / v2
-impl Div<Self> for Vec3 {
+impl Div for Vec3 {
     type Output = Self;
 
     fn div(self, rhs: Self) -> Self::Output {
@@ -441,7 +448,7 @@ impl Div<u32> for Vec3 {
 }
 
 // v1 += v2
-impl AddAssign<Self> for Vec3 {
+impl AddAssign for Vec3 {
     fn add_assign(&mut self, rhs: Self) {
         *self = Self {
             x: self.x + rhs.x,
@@ -452,7 +459,7 @@ impl AddAssign<Self> for Vec3 {
 }
 
 // v1 -= v2
-impl SubAssign<Self> for Vec3 {
+impl SubAssign for Vec3 {
     fn sub_assign(&mut self, rhs: Self) {
         *self = Self {
             x: self.x - rhs.x,
@@ -463,7 +470,7 @@ impl SubAssign<Self> for Vec3 {
 }
 
 // v1 *= v2
-impl MulAssign<Self> for Vec3 {
+impl MulAssign for Vec3 {
     fn mul_assign(&mut self, rhs: Self) {
         *self = Self {
             x: self.x * rhs.x,
@@ -492,7 +499,7 @@ impl MulAssign<u32> for Vec3 {
 }
 
 // v1 /= v2
-impl DivAssign<Self> for Vec3 {
+impl DivAssign for Vec3 {
     fn div_assign(&mut self, rhs: Self) {
         *self = Self {
             x: self.x / rhs.x,

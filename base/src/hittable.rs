@@ -10,7 +10,7 @@ pub struct HitRecord {
 
 impl HitRecord {
     /// Builds a default `HitRecord`.
-    pub fn build() -> Self {
+    pub fn builder() -> Self {
         Self::default()
     }
 
