@@ -25,6 +25,8 @@ pub struct Camera {
     pixel_samples_scale: f64,
     /// Maximum number of ray bounces into scene
     max_depth: u32,
+    /// Vertical view angle (field of view)
+    vfov: Degrees,
     /// Camera center
     center: Point3,
     /// Location of pixel 0, 0
@@ -75,6 +77,7 @@ impl Camera {
     ///     .set_image_width(100)
     ///     .set_samples_per_pixel(10)
     ///     .set_max_depth(10)
+    ///     .set_vertical_view_angle(90.)
     ///     .build();
     /// ```
     pub fn builder() -> Self {
@@ -85,6 +88,7 @@ impl Camera {
             samples_per_pixel: 10,
             pixel_samples_scale: 0.,
             max_depth: 10,
+            vfov: Degrees(90.),
             center: Point3::zero(),
             pixel00_loc: Point3::zero(),
             pixel_delta_u: Vec3::zero(),
@@ -113,6 +117,12 @@ impl Camera {
     /// Set the maximum depth of the camera.
     pub fn set_max_depth(mut self, max_depth: u32) -> Self {
         self.max_depth = max_depth;
+        self
+    }
+
+    /// Set the vertical view angle of the camera.
+    pub fn set_vertical_view_angle(mut self, vfov: f64) -> Self {
+        self.vfov = Degrees(vfov);
         self
     }
 
@@ -206,7 +216,9 @@ impl Camera {
 
         // Determine viewport dimensions.
         let focal_length = 1.;
-        let viewport_height = 2.;
+        let theta = self.vfov.to_radians();
+        let h = (*theta / 2.).tan();
+        let viewport_height = 2. * h * focal_length;
         let viewport_width = viewport_height * (self.image_width as f64 / self.image_height as f64);
 
         // Calculate the vectors across the horizontal and down the vertical viewport edges.

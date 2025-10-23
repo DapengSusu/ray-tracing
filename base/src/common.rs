@@ -1,24 +1,44 @@
-use std::sync::LazyLock;
+use std::{ops::Deref, sync::LazyLock};
 
 use rand::distr::{Distribution, Uniform};
 
 static RANDOM_RANGE: LazyLock<Uniform<f64>> = LazyLock::new(|| Uniform::new(0., 1.).unwrap());
 
+/// 角度
 #[derive(Debug, Default)]
-pub struct Degrees(f64);
+pub struct Degrees(pub(crate) f64);
 
+/// 弧度
 #[derive(Debug, Default)]
-pub struct Radians(f64);
+pub struct Radians(pub(crate) f64);
 
-impl From<Degrees> for Radians {
-    fn from(degrees: Degrees) -> Self {
-        Radians(degrees.0.to_radians())
+impl Degrees {
+    /// Convert degrees to radians.
+    pub fn to_radians(&self) -> Radians {
+        Radians(self.0.to_radians())
     }
 }
 
-impl From<Radians> for Degrees {
-    fn from(radians: Radians) -> Self {
-        Degrees(radians.0.to_degrees())
+impl Radians {
+    /// Convert radians to degrees.
+    pub fn to_degrees(&self) -> Degrees {
+        Degrees(self.0.to_degrees())
+    }
+}
+
+impl Deref for Degrees {
+    type Target = f64;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Deref for Radians {
+    type Target = f64;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
