@@ -56,8 +56,12 @@ impl Interval {
     ///
     /// x.max(min).min(max)
     /// min <= x && x <= max
+    ///
+    /// # Panics
+    ///
+    /// Panics if `min > max`, `min` is NaN, or `max` is NaN.
     pub fn clamp(&self, x: f64) -> f64 {
-        x.max(self.min).min(self.max)
+        x.clamp(self.min, self.max)
     }
 }
 
