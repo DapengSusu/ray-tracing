@@ -5,56 +5,87 @@ use std::{
 
 use ray_tracing_base::prelude::*;
 
-fn main() -> Result<(), io::Error> {
-    let material_ground = Arc::new(Lambertian::new(Color::with_xyz(0.8, 0.8, 0.)));
-    let material_center = Arc::new(Lambertian::new(Color::with_xyz(0.1, 0.2, 0.5)));
-    let material_left = Arc::new(Dielectric::new(1.5));
-    let material_bubble = Arc::new(Dielectric::new(1. / 1.5));
-    let material_right = Arc::new(Metal::new(Color::with_xyz(0.8, 0.6, 0.2), 1.));
+fn generate_sphere_random() -> HittableList {
+    let mut world = HittableList::new();
 
+    (-10..11).for_each(|i| {
+        (-10..11).for_each(|j| {
+            let material_random = common::random();
+            let center = Point3::with_xyz(
+                j as f64 + 0.9 * common::random(),
+                0.2,
+                i as f64 + 0.9 * common::random(),
+            );
+
+            if (center - Point3::with_xyz(4., 0.2, 0.)).length() > 0.9 {
+                if material_random < 0.7 {
+                    // diffuse
+                    let albedo = Color::random() * Color::random();
+                    let material = Arc::new(Lambertian::new(albedo));
+                    world.add(Arc::new(Sphere::new(center, 0.2, Some(material))));
+                } else if material_random < 0.9 {
+                    // metal
+                    let albedo = Color::random_range(0.5, 1.);
+                    let fuzz = common::random_range(0., 0.5);
+                    let material = Arc::new(Metal::new(albedo, fuzz));
+                    world.add(Arc::new(Sphere::new(center, 0.2, Some(material))));
+                } else {
+                    // glass
+                    let material = Arc::new(Dielectric::new(1.5));
+                    world.add(Arc::new(Sphere::new(center, 0.2, Some(material))));
+                }
+            }
+        });
+    });
+
+    world
+}
+
+fn main() -> Result<(), io::Error> {
     // World
-    let world = Arc::new(HittableList::from_hittables(vec![
-        Arc::new(Sphere::new(
-            Point3::with_yz(-100.5, -1.),
-            100.,
-            Some(material_ground),
-        )),
-        Arc::new(Sphere::new(
-            Point3::with_z(-1.2),
-            0.5,
-            Some(material_center),
-        )),
-        Arc::new(Sphere::new(
-            Point3::with_xz(-1., -1.),
-            0.5,
-            Some(material_left),
-        )),
-        Arc::new(Sphere::new(
-            Point3::with_xz(-1., -1.),
-            0.4,
-            Some(material_bubble),
-        )),
-        Arc::new(Sphere::new(
-            Point3::with_xz(1., -1.),
-            0.5,
-            Some(material_right),
-        )),
-    ]));
+    let mut world = generate_sphere_random();
+
+    let material_ground = Arc::new(Lambertian::new(Color::with_xyz(0.5, 0.5, 0.5)));
+    world.add(Arc::new(Sphere::new(
+        Point3::with_y(-1000.),
+        1000.,
+        Some(material_ground),
+    )));
+
+    let material_major_1 = Arc::new(Dielectric::new(1.5));
+    let material_major_2 = Arc::new(Lambertian::new(Color::with_xyz(0.4, 0.2, 0.1)));
+    let material_major_3 = Arc::new(Metal::new(Color::with_xyz(0.7, 0.6, 0.5), 0.));
+
+    world.add(Arc::new(Sphere::new(
+        Point3::with_y(1.),
+        1.,
+        Some(material_major_1),
+    )));
+    world.add(Arc::new(Sphere::new(
+        Point3::with_xyz(-4., 1., 0.),
+        1.,
+        Some(material_major_2),
+    )));
+    world.add(Arc::new(Sphere::new(
+        Point3::with_xyz(4., 1., 0.),
+        1.,
+        Some(material_major_3),
+    )));
 
     // Camera render
     Camera::builder()
         .set_aspect_ratio(16. / 9.)
-        .set_image_width(400)
-        .set_samples_per_pixel(100)
+        .set_image_width(1200)
+        .set_samples_per_pixel(500)
         .set_max_depth(50)
         .set_vertical_view_angle(20.)
-        .set_look_from(Point3::with_xyz(-2., 2., 1.))
-        .set_look_at(Point3::with_z(-1.))
+        .set_look_from(Point3::with_xyz(13., 2., 3.))
+        .set_look_at(Point3::zero())
         .set_vup(Vec3::with_y(1.))
-        .set_defocus_angle(10.)
-        .set_focus_distance(3.4)
+        .set_defocus_angle(0.6)
+        .set_focus_distance(10.)
         .build()
-        .render(world)?;
+        .render(Arc::new(world))?;
 
     Ok(())
 }
