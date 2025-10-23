@@ -23,6 +23,8 @@ pub struct Camera {
     samples_per_pixel: u32,
     /// Color scale factor for a sum of pixel samples
     pixel_samples_scale: f64,
+    /// Maximum number of ray bounces into scene
+    max_depth: u32,
     /// Camera center
     center: Point3,
     /// Location of pixel 0, 0
@@ -34,10 +36,16 @@ pub struct Camera {
 }
 
 // Return the color for a given scene ray
-fn ray_color<H: Hittable>(ray: Ray, world: Arc<H>) -> Color {
+fn ray_color<H: Hittable>(ray: Ray, depth: u32, world: Arc<H>) -> Color {
+    // If we've exceeded the ray bounce limit, no more light is gathered.
+    if depth == 0 {
+        return Color::zero();
+    }
+
     if let Some(hit) = world.hit(&ray, Interval::new(0., f64::INFINITY)) {
         let direction = Vec3::random_on_hemisphere(&hit.normal);
-        return 0.5 * ray_color(Ray::new(hit.p, direction), world.clone());
+
+        return 0.5 * ray_color(Ray::new(hit.p, direction), depth - 1, world.clone());
     }
 
     let direction = ray.direction.to_unit();
@@ -76,6 +84,7 @@ impl Camera {
     ///     .set_aspect_ratio(1.)
     ///     .set_image_width(100)
     ///     .set_samples_per_pixel(10)
+    ///     .set_max_depth(10)
     ///     .build();
     /// ```
     pub fn builder() -> Self {
@@ -85,6 +94,7 @@ impl Camera {
             image_height: 0,
             samples_per_pixel: 10,
             pixel_samples_scale: 0.,
+            max_depth: 10,
             center: Point3::zero(),
             pixel00_loc: Point3::zero(),
             pixel_delta_u: Vec3::zero(),
@@ -107,6 +117,12 @@ impl Camera {
     /// Set the samples per pixel of the camera.
     pub fn set_samples_per_pixel(mut self, samples_per_pixel: u32) -> Self {
         self.samples_per_pixel = samples_per_pixel;
+        self
+    }
+
+    /// Set the maximum depth of the camera.
+    pub fn set_max_depth(mut self, max_depth: u32) -> Self {
+        self.max_depth = max_depth;
         self
     }
 
@@ -149,7 +165,7 @@ impl Camera {
                             .map(|_| {
                                 let ray = self.sample_ray(i, j);
 
-                                ray_color(ray, world.clone())
+                                ray_color(ray, self.max_depth, world.clone())
                             })
                             .sum();
 

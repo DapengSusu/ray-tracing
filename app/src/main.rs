@@ -17,6 +17,7 @@ fn main() -> Result<(), io::Error> {
         .set_aspect_ratio(16. / 9.)
         .set_image_width(400)
         .set_samples_per_pixel(100)
+        .set_max_depth(50)
         .build()
         .render(world)?;
 
