@@ -9,7 +9,7 @@ use std::{
 
 use rayon::prelude::*;
 
-use crate::{Color, Hittable, Interval, Point3, Ray, Vec3};
+use crate::prelude::*;
 
 #[derive(Debug)]
 pub struct Camera {
@@ -29,30 +29,10 @@ pub struct Camera {
     pixel_delta_v: Vec3,
 }
 
-fn hit_sphere(center: &Point3, radius: f64, ray: &Ray) -> f64 {
-    let oc = *center - ray.origin;
-    let a = ray.direction.length_squared();
-    let h = ray.direction.dot(&oc);
-    let c = oc.length_squared() - radius * radius;
-    let discriminant = h * h - a * c;
-
-    if discriminant >= 0. {
-        (h - discriminant.sqrt()) / a
-    } else {
-        -1.
-    }
-}
-
 // Return the color for a given scene ray
 fn ray_color<H: Hittable>(ray: &Ray, world: Arc<H>) -> Color {
     if let Some(hit) = world.hit(ray, Interval::new(0., f64::INFINITY)) {
         return 0.5 * (hit.normal + Color::one());
-    }
-
-    let t = hit_sphere(&Point3::with_z(-1.), 0.5, ray);
-    if t > 0. {
-        let normal = (ray.at(t) - Vec3::with_z(-1.)).to_unit();
-        return 0.5 * Color::with_xyz(normal.x + 1., normal.y + 1., normal.z + 1.);
     }
 
     let direction = ray.direction.to_unit();
