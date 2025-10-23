@@ -7,7 +7,7 @@ use std::{
     time::Instant,
 };
 
-use ray_tracing_base::{Color, Hittable, HittableList, Point3, Ray, Sphere, Vec3};
+use ray_tracing_base::{Color, Hittable, HittableList, Interval, Point3, Ray, Sphere, Vec3};
 use rayon::prelude::*;
 
 /// aspect ratio, like 16:9, 4:3, etc.
@@ -29,20 +29,20 @@ fn hit_sphere(center: &Point3, radius: f64, ray: &Ray) -> f64 {
 
 /// Return the color for a given scene ray
 fn ray_color<H: Hittable>(ray: &Ray, world: Arc<H>) -> Color {
-    if let Some(hit) = world.hit(ray, 0., f64::INFINITY) {
+    if let Some(hit) = world.hit(ray, Interval::new(0., f64::INFINITY)) {
         return 0.5 * (hit.normal + Color::one());
     }
 
-    let t = hit_sphere(&Point3::from_z(-1.), 0.5, ray);
+    let t = hit_sphere(&Point3::with_z(-1.), 0.5, ray);
     if t > 0. {
-        let normal = (ray.at(t) - Vec3::from_z(-1.)).to_unit();
-        return 0.5 * Color::from_xyz(normal.x + 1., normal.y + 1., normal.z + 1.);
+        let normal = (ray.at(t) - Vec3::with_z(-1.)).to_unit();
+        return 0.5 * Color::with_xyz(normal.x + 1., normal.y + 1., normal.z + 1.);
     }
 
     let direction = ray.direction.to_unit();
     let a = 0.5 * (direction.y + 1.);
 
-    (1. - a) * Color::one() + a * Color::from_xyz(0.5, 0.7, 1.)
+    (1. - a) * Color::one() + a * Color::with_xyz(0.5, 0.7, 1.)
 }
 
 /// Translate a color into a tuple of bytes
@@ -66,8 +66,8 @@ fn main() -> Result<(), io::Error> {
 
     // World
     let world = Arc::new(HittableList::from_hittables(vec![
-        Arc::new(Sphere::new(Point3::from_z(-1.), 0.5)),
-        Arc::new(Sphere::new(Point3::from_yz(-100.5, -1.), 100.)),
+        Arc::new(Sphere::new(Point3::with_z(-1.), 0.5)),
+        Arc::new(Sphere::new(Point3::with_yz(-100.5, -1.), 100.)),
     ]));
 
     // Camera
@@ -77,8 +77,8 @@ fn main() -> Result<(), io::Error> {
     let camera_center = Point3::zero();
 
     // Calculate the vectors across the horizontal and down the vertical viewport edges.
-    let viewport_u = Vec3::from_x(viewport_width);
-    let viewport_v = Vec3::from_y(-viewport_height);
+    let viewport_u = Vec3::with_x(viewport_width);
+    let viewport_v = Vec3::with_y(-viewport_height);
 
     // Calculate the horizontal and vertical delta vectors from pixel to pixel.
     let pixel_delta_u = viewport_u / image_width;
@@ -86,7 +86,7 @@ fn main() -> Result<(), io::Error> {
 
     // Calculate the location of the upper left pixel.
     let viewport_upper_left =
-        camera_center - Vec3::from_z(focal_length) - viewport_u / 2 - viewport_v / 2;
+        camera_center - Vec3::with_z(focal_length) - viewport_u / 2 - viewport_v / 2;
     let pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
     // Writer

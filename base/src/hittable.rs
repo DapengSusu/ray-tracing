@@ -1,4 +1,4 @@
-use crate::{Point3, Ray, Vec3};
+use crate::{Interval, Point3, Ray, Vec3};
 
 #[derive(Debug, Default)]
 pub struct HitRecord {
@@ -44,5 +44,5 @@ impl HitRecord {
 
 /// Trait for objects that can be hit by rays.
 pub trait Hittable: Sync + Send {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
+    fn hit(&self, ray: &Ray, ray_t: Interval) -> Option<HitRecord>;
 }
