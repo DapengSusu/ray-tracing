@@ -17,6 +17,8 @@ pub use vec3::{Vec3, Vec3Iter};
 /// Prelude module for importing commonly used types and traits.
 pub mod prelude {
     pub use crate::camera::Camera;
+    pub use crate::color;
+    pub use crate::common;
     pub use crate::hittable::{HitRecord, Hittable, HittableList, Sphere};
     pub use crate::interval::Interval;
     pub use crate::material::{Dielectric, Lambertian, Material, Metal};
