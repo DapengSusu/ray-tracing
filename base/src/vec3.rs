@@ -101,7 +101,7 @@ impl Vec3 {
     /// Pick a random point inside the cube enclosing the unit sphere. If this point
     /// lies outside the unit sphere, then generate a new one until we find one that
     /// lies inside or on the unit sphere.
-    fn random_unit_vector() -> Self {
+    pub fn random_unit_vector() -> Self {
         loop {
             let p = Self::random_range(-1., 1.);
             let lensq = p.length_squared();
