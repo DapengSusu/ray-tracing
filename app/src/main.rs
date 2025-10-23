@@ -51,6 +51,8 @@ fn main() -> Result<(), io::Error> {
         .set_look_from(Point3::with_xyz(-2., 2., 1.))
         .set_look_at(Point3::with_z(-1.))
         .set_vup(Vec3::with_y(1.))
+        .set_defocus_angle(10.)
+        .set_focus_distance(3.4)
         .build()
         .render(world)?;
 

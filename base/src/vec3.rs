@@ -112,6 +112,17 @@ impl Vec3 {
         }
     }
 
+    /// Like `random_unit_vector()` but only for two dimensions.
+    pub fn random_in_unit_disk() -> Self {
+        loop {
+            let p = Vec3::with_xy(common::random(), common::random());
+
+            if p.length_squared() < 1. {
+                return p;
+            }
+        }
+    }
+
     /// Take the dot product of the surface normal and our random vector to determine
     /// if it's in the correct hemisphere. If the dot product is positive, then the vector
     /// is in the correct hemisphere. If the dot product is negative,
