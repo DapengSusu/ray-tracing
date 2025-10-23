@@ -27,6 +27,12 @@ pub struct Camera {
     max_depth: u32,
     /// Vertical view angle (field of view)
     vfov: Degrees,
+    /// Point camera is looking from
+    look_from: Point3,
+    /// Point camera is looking at
+    look_at: Point3,
+    /// Camera-relative "up" direction
+    vup: Vec3,
     /// Camera center
     center: Point3,
     /// Location of pixel 0, 0
@@ -35,6 +41,19 @@ pub struct Camera {
     pixel_delta_u: Vec3,
     /// Offset to pixel below
     pixel_delta_v: Vec3,
+    /// Camera frame basis vectors
+    basis: CameraBasis,
+}
+
+/// Camera frame basis vectors
+#[derive(Debug, Default)]
+struct CameraBasis {
+    /// Camera-relative "right" direction
+    u: Vec3,
+    /// Camera-relative "up" direction
+    v: Vec3,
+    /// Camera-relative "forward" direction
+    w: Vec3,
 }
 
 // Return the color for a given scene ray
@@ -89,10 +108,14 @@ impl Camera {
             pixel_samples_scale: 0.,
             max_depth: 10,
             vfov: Degrees(90.),
+            look_from: Point3::zero(),
+            look_at: Point3::with_z(-1.),
+            vup: Vec3::with_y(1.),
             center: Point3::zero(),
             pixel00_loc: Point3::zero(),
             pixel_delta_u: Vec3::zero(),
             pixel_delta_v: Vec3::zero(),
+            basis: CameraBasis::default(),
         }
     }
 
@@ -123,6 +146,24 @@ impl Camera {
     /// Set the vertical view angle of the camera.
     pub fn set_vertical_view_angle(mut self, vfov: f64) -> Self {
         self.vfov = Degrees(vfov);
+        self
+    }
+
+    /// Set the look from point of the camera.
+    pub fn set_look_from(mut self, look_from: Point3) -> Self {
+        self.look_from = look_from;
+        self
+    }
+
+    /// Set the look at point of the camera.
+    pub fn set_look_at(mut self, look_at: Point3) -> Self {
+        self.look_at = look_at;
+        self
+    }
+
+    /// Set the up direction of the camera.
+    pub fn set_vup(mut self, vup: Vec3) -> Self {
+        self.vup = vup;
         self
     }
 
@@ -212,18 +253,24 @@ impl Camera {
         self.pixel_samples_scale = 1. / self.samples_per_pixel as f64;
 
         // Camera center
-        self.center = Point3::zero();
+        self.center = self.look_from;
 
         // Determine viewport dimensions.
-        let focal_length = 1.;
+        let look_vec = self.look_from - self.look_at;
+        let focal_length = look_vec.length();
         let theta = self.vfov.to_radians();
         let h = (*theta / 2.).tan();
         let viewport_height = 2. * h * focal_length;
         let viewport_width = viewport_height * (self.image_width as f64 / self.image_height as f64);
 
+        // Calculate the u,v,w unit basis vectors for the camera coordinate frame.
+        self.basis.w = look_vec.to_unit();
+        self.basis.u = vec3::cross(&self.vup, &self.basis.w).to_unit();
+        self.basis.v = vec3::cross(&self.basis.w, &self.basis.u);
+
         // Calculate the vectors across the horizontal and down the vertical viewport edges.
-        let viewport_u = Vec3::with_x(viewport_width);
-        let viewport_v = Vec3::with_y(-viewport_height);
+        let viewport_u = viewport_width * self.basis.u; // Vector across viewport horizontal edge
+        let viewport_v = viewport_height * (-self.basis.v); // Vector down viewport vertical edge
 
         // Calculate the horizontal and vertical delta vectors from pixel to pixel.
         self.pixel_delta_u = viewport_u / self.image_width as f64;
@@ -231,7 +278,7 @@ impl Camera {
 
         // Calculate the location of the upper left pixel.
         let viewport_upper_left =
-            self.center - Vec3::with_z(focal_length) - viewport_u / 2 - viewport_v / 2;
+            self.center - focal_length * self.basis.w - viewport_u / 2 - viewport_v / 2;
         self.pixel00_loc = viewport_upper_left + 0.5 * (self.pixel_delta_u + self.pixel_delta_v);
 
         self

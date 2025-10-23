@@ -1,5 +1,4 @@
 use std::{
-    f64::consts::PI,
     io::{self},
     sync::Arc,
 };
@@ -7,21 +6,37 @@ use std::{
 use ray_tracing_base::prelude::*;
 
 fn main() -> Result<(), io::Error> {
-    let r = (PI / 4.).cos();
-
-    let material_left = Arc::new(Lambertian::new(Color::with_z(1.)));
-    let material_right = Arc::new(Lambertian::new(Color::with_x(1.)));
+    let material_ground = Arc::new(Lambertian::new(Color::with_xyz(0.8, 0.8, 0.)));
+    let material_center = Arc::new(Lambertian::new(Color::with_xyz(0.1, 0.2, 0.5)));
+    let material_left = Arc::new(Dielectric::new(1.5));
+    let material_bubble = Arc::new(Dielectric::new(1. / 1.5));
+    let material_right = Arc::new(Metal::new(Color::with_xyz(0.8, 0.6, 0.2), 1.));
 
     // World
     let world = Arc::new(HittableList::from_hittables(vec![
         Arc::new(Sphere::new(
-            Point3::with_xz(-r, -1.),
-            r,
+            Point3::with_yz(-100.5, -1.),
+            100.,
+            Some(material_ground),
+        )),
+        Arc::new(Sphere::new(
+            Point3::with_z(-1.2),
+            0.5,
+            Some(material_center),
+        )),
+        Arc::new(Sphere::new(
+            Point3::with_xz(-1., -1.),
+            0.5,
             Some(material_left),
         )),
         Arc::new(Sphere::new(
-            Point3::with_xz(r, -1.),
-            r,
+            Point3::with_xz(-1., -1.),
+            0.4,
+            Some(material_bubble),
+        )),
+        Arc::new(Sphere::new(
+            Point3::with_xz(1., -1.),
+            0.5,
             Some(material_right),
         )),
     ]));
@@ -32,7 +47,10 @@ fn main() -> Result<(), io::Error> {
         .set_image_width(400)
         .set_samples_per_pixel(100)
         .set_max_depth(50)
-        .set_vertical_view_angle(90.)
+        .set_vertical_view_angle(20.)
+        .set_look_from(Point3::with_xyz(-2., 2., 1.))
+        .set_look_at(Point3::with_z(-1.))
+        .set_vup(Vec3::with_y(1.))
         .build()
         .render(world)?;
 
