@@ -20,6 +20,11 @@ impl BvhNode {
     pub fn from_hittables(mut objects: Vec<Arc<dyn Hittable>>, begin: usize, end: usize) -> Self {
         let mut bvh_node = Self::default();
 
+        // Build the bounding box of the span of source objects.
+        (begin..end).for_each(|i| {
+            bvh_node.bounding_box += objects[i].bounding_box().to_owned();
+        });
+
         let object_span = end - begin;
         if object_span == 1 {
             bvh_node.left = Some(objects[begin].clone());
@@ -28,7 +33,7 @@ impl BvhNode {
             bvh_node.left = Some(objects[begin].clone());
             bvh_node.right = Some(objects[begin + 1].clone());
         } else {
-            match common::random_range(0_u8, 3) {
+            match bvh_node.bounding_box.longest_axis() {
                 0 => objects[begin..end].sort_by(box_x_compare),
                 1 => objects[begin..end].sort_by(box_y_compare),
                 _ => objects[begin..end].sort_by(box_z_compare),
@@ -39,11 +44,6 @@ impl BvhNode {
             bvh_node.left = Some(Arc::new(left));
             bvh_node.right = Some(Arc::new(right));
         }
-
-        bvh_node.bounding_box = AABB::from_boxes(
-            bvh_node.left.as_ref().unwrap().bounding_box(),
-            bvh_node.right.as_ref().unwrap().bounding_box(),
-        );
 
         bvh_node
     }

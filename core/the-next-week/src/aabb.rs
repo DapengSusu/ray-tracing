@@ -1,6 +1,22 @@
+use std::ops::{Add, AddAssign};
 use std::{iter::Sum, ops::Index};
 
+use crate::interval;
 use crate::prelude::*;
+
+/// Empty axis-aligned bounding box.
+pub const EMPTY: AABB = AABB {
+    x: interval::EMPTY,
+    y: interval::EMPTY,
+    z: interval::EMPTY,
+};
+
+/// Universe axis-aligned bounding box.
+pub const UNIVERSE: AABB = AABB {
+    x: interval::UNIVERSE,
+    y: interval::UNIVERSE,
+    z: interval::UNIVERSE,
+};
 
 /// Axis-aligned bounding boxes.（轴对齐边界框）
 /// The default AABB is empty, since intervals are empty by default.
@@ -75,6 +91,21 @@ impl AABB {
         }
     }
 
+    /// Returns the index of the longest axis of the bounding box.
+    pub fn longest_axis(&self) -> u8 {
+        let x_size = self.x.size();
+        let y_size = self.y.size();
+        let z_size = self.z.size();
+
+        if x_size > y_size {
+            if x_size > z_size { 0 } else { 2 }
+        } else if y_size > z_size {
+            1
+        } else {
+            2
+        }
+    }
+
     pub fn hit(&self, ray: &Ray, mut ray_t: Interval) -> bool {
         let ray_origin = &ray.origin;
         let ray_direc = &ray.direction;
@@ -88,14 +119,6 @@ impl AABB {
 
             ray_t.min = ray_t.min.max(t0.min(t1));
             ray_t.max = ray_t.max.min(t0.max(t1));
-
-            // if t0 < t1 {
-            //     ray_t.min = ray_t.min.max(t0);
-            //     ray_t.max = ray_t.max.min(t1);
-            // } else {
-            //     ray_t.min = ray_t.min.max(t1);
-            //     ray_t.max = ray_t.max.min(t0);
-            // }
 
             if ray_t.max <= ray_t.min {
                 return false;
@@ -128,6 +151,20 @@ impl Sum for AABB {
         I: Iterator<Item = Self>,
     {
         iter.fold(Self::default(), |acc, item| Self::from_boxes(&acc, &item))
+    }
+}
+
+impl Add for AABB {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Self::from_boxes(&self, &other)
+    }
+}
+
+impl AddAssign for AABB {
+    fn add_assign(&mut self, other: Self) {
+        *self = Self::from_boxes(self, &other);
     }
 }
 

@@ -1,7 +1,7 @@
-mod aabb;
 mod camera;
 mod ray;
 
+pub mod aabb;
 pub mod color;
 pub mod common;
 pub mod hittable;
