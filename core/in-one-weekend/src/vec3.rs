@@ -18,22 +18,8 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
-    /// Creates a new vector with all components set to zero.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use ray_tracing_base::Vec3;
-    /// let v = Vec3::new();
-    /// assert_eq!(v, Vec3::zero());
-    /// assert_eq!(v, Vec3::with_xyz(0., 0., 0.));
-    /// ```
-    pub fn new() -> Self {
-        Self::zero()
-    }
-
     /// Creates a new vector with the given components.
-    pub fn with_xyz(x: f64, y: f64, z: f64) -> Self {
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z }
     }
 
@@ -42,12 +28,12 @@ impl Vec3 {
     /// # Examples
     ///
     /// ```rust
-    /// # use ray_tracing_base::Vec3;
+    /// # use in_one_weekend_core::Vec3;
     /// let v = Vec3::zero();
-    /// assert_eq!(v, Vec3::with_xyz(0., 0., 0.));
+    /// assert_eq!(v, Vec3::new(0., 0., 0.));
     /// ```
     pub fn zero() -> Self {
-        Self::with_xyz(0., 0., 0.)
+        Self::new(0., 0., 0.)
     }
 
     /// Creates a new vector with all components set to one.
@@ -55,12 +41,12 @@ impl Vec3 {
     /// # Examples
     ///
     /// ```rust
-    /// # use ray_tracing_base::Vec3;
+    /// # use in_one_weekend_core::Vec3;
     /// let v = Vec3::one();
-    /// assert_eq!(v, Vec3::with_xyz(1., 1., 1.));
+    /// assert_eq!(v, Vec3::new(1., 1., 1.));
     /// ```
     pub fn one() -> Self {
-        Self::with_xyz(1., 1., 1.)
+        Self::new(1., 1., 1.)
     }
 
     /// Creates a new vector with randoms value between 0 and 1.
@@ -68,14 +54,14 @@ impl Vec3 {
     /// # Examples
     ///
     /// ```rust
-    /// # use ray_tracing_base::Vec3;
+    /// # use in_one_weekend_core::Vec3;
     /// let v = Vec3::random();
     /// assert!(v.x >= 0. && v.x < 1.);
     /// assert!(v.y >= 0. && v.y < 1.);
     /// assert!(v.z >= 0. && v.z < 1.);
     /// ```
     pub fn random() -> Self {
-        Self::with_xyz(common::random(), common::random(), common::random())
+        Self::new(common::random(), common::random(), common::random())
     }
 
     /// Creates a new vector with random values between the given minimum and maximum values.
@@ -83,14 +69,14 @@ impl Vec3 {
     /// # Examples
     ///
     /// ```rust
-    /// # use ray_tracing_base::Vec3;
+    /// # use in_one_weekend_core::Vec3;
     /// let v = Vec3::random_range(-1., 1.);
     /// assert!(v.x >= -1. && v.x < 1.);
     /// assert!(v.y >= -1. && v.y < 1.);
     /// assert!(v.z >= -1. && v.z < 1.);
     /// ```
     pub fn random_range(min: f64, max: f64) -> Self {
-        Self::with_xyz(
+        Self::new(
             common::random_range(min, max),
             common::random_range(min, max),
             common::random_range(min, max),
@@ -155,12 +141,12 @@ impl Vec3 {
     /// # Examples
     ///
     /// ```rust
-    /// # use ray_tracing_base::Vec3;
+    /// # use in_one_weekend_core::Vec3;
     /// let v = Vec3::with_isotropic(2.);
-    /// assert_eq!(v, Vec3::with_xyz(2., 2., 2.));
+    /// assert_eq!(v, Vec3::new(2., 2., 2.));
     /// ```
     pub fn with_isotropic(value: f64) -> Self {
-        Self::with_xyz(value, value, value)
+        Self::new(value, value, value)
     }
 
     /// Creates a new vector with the given x component and y and z components set to zero.
@@ -168,12 +154,12 @@ impl Vec3 {
     /// # Examples
     ///
     /// ```rust
-    /// # use ray_tracing_base::Vec3;
+    /// # use in_one_weekend_core::Vec3;
     /// let v = Vec3::with_x(2.);
-    /// assert_eq!(v, Vec3::with_xyz(2., 0., 0.));
+    /// assert_eq!(v, Vec3::new(2., 0., 0.));
     /// ```
     pub fn with_x(x: f64) -> Self {
-        Self::with_xyz(x, 0., 0.)
+        Self::new(x, 0., 0.)
     }
 
     /// Creates a new vector with the given y component and x and z components set to zero.
@@ -181,12 +167,12 @@ impl Vec3 {
     /// # Examples
     ///
     /// ```rust
-    /// # use ray_tracing_base::Vec3;
+    /// # use in_one_weekend_core::Vec3;
     /// let v = Vec3::with_y(2.);
-    /// assert_eq!(v, Vec3::with_xyz(0., 2., 0.));
+    /// assert_eq!(v, Vec3::new(0., 2., 0.));
     /// ```
     pub fn with_y(y: f64) -> Self {
-        Self::with_xyz(0., y, 0.)
+        Self::new(0., y, 0.)
     }
 
     /// Creates a new vector with the given z component and x and y components set to zero.
@@ -194,12 +180,12 @@ impl Vec3 {
     /// # Examples
     ///
     /// ```rust
-    /// # use ray_tracing_base::Vec3;
+    /// # use in_one_weekend_core::Vec3;
     /// let v = Vec3::with_z(2.);
-    /// assert_eq!(v, Vec3::with_xyz(0., 0., 2.));
+    /// assert_eq!(v, Vec3::new(0., 0., 2.));
     /// ```
     pub fn with_z(z: f64) -> Self {
-        Self::with_xyz(0., 0., z)
+        Self::new(0., 0., z)
     }
 
     /// Creates a new vector with the given x and y components and z component set to zero.
@@ -207,12 +193,12 @@ impl Vec3 {
     /// # Examples
     ///
     /// ```rust
-    /// # use ray_tracing_base::Vec3;
+    /// # use in_one_weekend_core::Vec3;
     /// let v = Vec3::with_xy(2., 3.);
-    /// assert_eq!(v, Vec3::with_xyz(2., 3., 0.));
+    /// assert_eq!(v, Vec3::new(2., 3., 0.));
     /// ```
     pub fn with_xy(x: f64, y: f64) -> Self {
-        Self::with_xyz(x, y, 0.)
+        Self::new(x, y, 0.)
     }
 
     /// Creates a new vector with the given x and z components and y component set to zero.
@@ -220,12 +206,12 @@ impl Vec3 {
     /// # Examples
     ///
     /// ```rust
-    /// # use ray_tracing_base::Vec3;
+    /// # use in_one_weekend_core::Vec3;
     /// let v = Vec3::with_xz(2., 3.);
-    /// assert_eq!(v, Vec3::with_xyz(2., 0., 3.));
+    /// assert_eq!(v, Vec3::new(2., 0., 3.));
     /// ```
     pub fn with_xz(x: f64, z: f64) -> Self {
-        Self::with_xyz(x, 0., z)
+        Self::new(x, 0., z)
     }
 
     /// Creates a new vector with the given y and z components and x component set to zero.
@@ -233,12 +219,12 @@ impl Vec3 {
     /// # Examples
     ///
     /// ```rust
-    /// # use ray_tracing_base::Vec3;
+    /// # use in_one_weekend_core::Vec3;
     /// let v = Vec3::with_yz(2., 3.);
-    /// assert_eq!(v, Vec3::with_xyz(0., 2., 3.));
+    /// assert_eq!(v, Vec3::new(0., 2., 3.));
     /// ```
     pub fn with_yz(y: f64, z: f64) -> Self {
-        Self::with_xyz(0., y, z)
+        Self::new(0., y, z)
     }
 
     /// Returns an iterator over the components of the vector.
@@ -246,8 +232,8 @@ impl Vec3 {
     /// # Examples
     ///
     /// ```rust
-    /// # use ray_tracing_base::Vec3;
-    /// let v = Vec3::with_xyz(1., 2., 3.);
+    /// # use in_one_weekend_core::Vec3;
+    /// let v = Vec3::new(1., 2., 3.);
     /// let mut iter = v.iter();
     /// assert_eq!(iter.next(), Some(1.));
     /// assert_eq!(iter.next(), Some(2.));
@@ -275,8 +261,8 @@ impl Vec3 {
     /// # Examples
     ///
     /// ```rust
-    /// # use ray_tracing_base::Vec3;
-    /// let v = Vec3::with_xyz(1., 2., 3.);
+    /// # use in_one_weekend_core::Vec3;
+    /// let v = Vec3::new(1., 2., 3.);
     /// assert_eq!(v.dot_self(), v.dot(&v));
     /// ```
     pub fn dot_self(&self) -> f64 {
@@ -288,13 +274,13 @@ impl Vec3 {
     /// # Examples
     ///
     /// ```no_run
-    /// # use ray_tracing_base::Vec3;
-    /// let v1 = Vec3::with_xyz(1., 2., 3.);
-    /// let v2 = Vec3::with_xyz(4., 5., 6.);
+    /// # use in_one_weekend_core::Vec3;
+    /// let v1 = Vec3::new(1., 2., 3.);
+    /// let v2 = Vec3::new(4., 5., 6.);
     /// let v3 = v1.cross(&v2);
-    /// assert_eq!(v3, Vec3::with_xyz(-3., 6., -3.));
+    /// assert_eq!(v3, Vec3::new(-3., 6., -3.));
     ///
-    /// let v4 = Vec3::with_xyz(
+    /// let v4 = Vec3::new(
     ///     v1.y * v2.z - v1.z * v2.y,
     ///     v1.z * v2.x - v1.x * v2.z,
     ///     v1.x * v2.y - v1.y * v2.x
@@ -310,8 +296,8 @@ impl Vec3 {
     /// # Examples
     ///
     /// ```rust
-    /// # use ray_tracing_base::Vec3;
-    /// let v = Vec3::with_xyz(1., 2., 3.);
+    /// # use in_one_weekend_core::Vec3;
+    /// let v = Vec3::new(1., 2., 3.);
     /// let u = v.to_unit();
     /// assert_eq!(u.length(), 1.);
     /// ```
@@ -345,7 +331,7 @@ pub fn dot(u: &Vec3, v: &Vec3) -> f64 {
 
 /// Returns the cross product of two vectors.
 pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
-    Vec3::with_xyz(
+    Vec3::new(
         u.y * v.z - u.z * v.y,
         u.z * v.x - u.x * v.z,
         u.x * v.y - u.y * v.x,
@@ -632,101 +618,101 @@ mod tests {
 
     #[test]
     fn vec3_neg_should_work() {
-        let v = Vec3::with_xyz(1., -2., 3.5);
+        let v = Vec3::new(1., -2., 3.5);
 
-        assert_eq!(-v, Vec3::with_xyz(-1., 2., -3.5));
+        assert_eq!(-v, Vec3::new(-1., 2., -3.5));
     }
 
     #[test]
     fn vec3_add_should_work() {
-        let mut v1 = Vec3::with_xyz(1., 2., 3.);
-        let v2 = Vec3::with_xyz(4., 5., 6.);
+        let mut v1 = Vec3::new(1., 2., 3.);
+        let v2 = Vec3::new(4., 5., 6.);
 
-        assert_eq!(v1 + v2, Vec3::with_xyz(5., 7., 9.));
+        assert_eq!(v1 + v2, Vec3::new(5., 7., 9.));
 
         v1 += v2;
-        assert_eq!(v1, Vec3::with_xyz(5., 7., 9.));
+        assert_eq!(v1, Vec3::new(5., 7., 9.));
     }
 
     #[test]
     fn vec3_sub_should_work() {
-        let mut v1 = Vec3::with_xyz(1., 2., 3.);
-        let v2 = Vec3::with_xyz(4., 5., 6.);
+        let mut v1 = Vec3::new(1., 2., 3.);
+        let v2 = Vec3::new(4., 5., 6.);
 
-        assert_eq!(v1 - v2, Vec3::with_xyz(-3., -3., -3.));
+        assert_eq!(v1 - v2, Vec3::new(-3., -3., -3.));
 
         v1 -= v2;
-        assert_eq!(v1, Vec3::with_xyz(-3., -3., -3.));
+        assert_eq!(v1, Vec3::new(-3., -3., -3.));
     }
 
     #[test]
     fn vec3_mul_should_work() {
-        let mut v1 = Vec3::with_xyz(1., 2., 3.);
-        let v2 = Vec3::with_xyz(4., 5., 6.);
+        let mut v1 = Vec3::new(1., 2., 3.);
+        let v2 = Vec3::new(4., 5., 6.);
 
-        assert_eq!(v1 * v2, Vec3::with_xyz(4., 10., 18.));
+        assert_eq!(v1 * v2, Vec3::new(4., 10., 18.));
 
         v1 *= v2;
-        assert_eq!(v1, Vec3::with_xyz(4., 10., 18.));
+        assert_eq!(v1, Vec3::new(4., 10., 18.));
     }
 
     #[test]
     fn vec3_div_should_work() {
-        let mut v1 = Vec3::with_xyz(1., 2., 3.);
-        let v2 = Vec3::with_xyz(4., 5., 6.);
+        let mut v1 = Vec3::new(1., 2., 3.);
+        let v2 = Vec3::new(4., 5., 6.);
 
-        assert_eq!(v1 / v2, Vec3::with_xyz(0.25, 0.4, 0.5));
+        assert_eq!(v1 / v2, Vec3::new(0.25, 0.4, 0.5));
 
         v1 /= v2;
-        assert_eq!(v1, Vec3::with_xyz(0.25, 0.4, 0.5));
+        assert_eq!(v1, Vec3::new(0.25, 0.4, 0.5));
     }
 
     #[test]
     fn vec3_mul_scalar_should_work() {
-        let mut v = Vec3::with_xyz(1., 2., 3.);
+        let mut v = Vec3::new(1., 2., 3.);
 
-        assert_eq!(v * 2., Vec3::with_xyz(2., 4., 6.));
+        assert_eq!(v * 2., Vec3::new(2., 4., 6.));
 
         v *= 2.;
-        assert_eq!(v, Vec3::with_xyz(2., 4., 6.));
+        assert_eq!(v, Vec3::new(2., 4., 6.));
     }
 
     #[test]
     fn vec3_div_scalar_should_work() {
-        let mut v = Vec3::with_xyz(1., 2., 3.);
+        let mut v = Vec3::new(1., 2., 3.);
 
-        assert_eq!(v / 2., Vec3::with_xyz(0.5, 1., 1.5));
+        assert_eq!(v / 2., Vec3::new(0.5, 1., 1.5));
 
         v /= 2.;
-        assert_eq!(v, Vec3::with_xyz(0.5, 1., 1.5));
+        assert_eq!(v, Vec3::new(0.5, 1., 1.5));
     }
 
     #[test]
     fn vec3_dot_should_work() {
-        let v1 = Vec3::with_xyz(1., 2., 3.);
-        let v2 = Vec3::with_xyz(4., 5., 6.);
+        let v1 = Vec3::new(1., 2., 3.);
+        let v2 = Vec3::new(4., 5., 6.);
 
         assert_eq!(v1.dot(&v2), 32.);
     }
 
     #[test]
     fn vec3_cross_should_work() {
-        let v1 = Vec3::with_xyz(1., 2., 3.);
-        let v2 = Vec3::with_xyz(4., 5., 6.);
+        let v1 = Vec3::new(1., 2., 3.);
+        let v2 = Vec3::new(4., 5., 6.);
 
-        assert_eq!(v1.cross(&v2), Vec3::with_xyz(-3., 6., -3.));
+        assert_eq!(v1.cross(&v2), Vec3::new(-3., 6., -3.));
     }
 
     #[test]
     fn vec3_to_unit_should_work() {
-        let v = Vec3::with_xyz(1., 2., 3.);
+        let v = Vec3::new(1., 2., 3.);
 
         assert_eq!(v.to_unit().length(), 1.);
     }
 
     #[test]
     fn vec3_index_should_work() {
-        let v = Vec3::with_xyz(1., 2., 3.);
+        let v = Vec3::new(1., 2., 3.);
 
         assert_eq!(v[0], 1.);
         assert_eq!(v[1], 2.);

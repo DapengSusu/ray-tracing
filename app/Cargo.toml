@@ -1,7 +1,0 @@
-[package]
-name = "ray_tracing_app"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-ray-tracing-base = { path = "../base" }

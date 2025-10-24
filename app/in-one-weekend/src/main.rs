@@ -3,7 +3,7 @@ use std::{
     sync::Arc,
 };
 
-use ray_tracing_base::prelude::*;
+use in_one_weekend_core::prelude::*;
 
 fn generate_sphere_random() -> HittableList {
     let mut world = HittableList::new();
@@ -11,13 +11,13 @@ fn generate_sphere_random() -> HittableList {
     (-10..11).for_each(|i| {
         (-10..11).for_each(|j| {
             let material_random = common::random();
-            let center = Point3::with_xyz(
+            let center = Point3::new(
                 j as f64 + 0.9 * common::random(),
                 0.2,
                 i as f64 + 0.9 * common::random(),
             );
 
-            if (center - Point3::with_xyz(4., 0.2, 0.)).length() > 0.9 {
+            if (center - Point3::new(4., 0.2, 0.)).length() > 0.9 {
                 if material_random < 0.7 {
                     // diffuse
                     let albedo = Color::random() * Color::random();
@@ -45,7 +45,7 @@ fn main() -> Result<(), io::Error> {
     // World
     let mut world = generate_sphere_random();
 
-    let material_ground = Arc::new(Lambertian::new(Color::with_xyz(0.5, 0.5, 0.5)));
+    let material_ground = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
     world.add(Arc::new(Sphere::new(
         Point3::with_y(-1000.),
         1000.,
@@ -53,8 +53,8 @@ fn main() -> Result<(), io::Error> {
     )));
 
     let material_major_1 = Arc::new(Dielectric::new(1.5));
-    let material_major_2 = Arc::new(Lambertian::new(Color::with_xyz(0.4, 0.2, 0.1)));
-    let material_major_3 = Arc::new(Metal::new(Color::with_xyz(0.7, 0.6, 0.5), 0.));
+    let material_major_2 = Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)));
+    let material_major_3 = Arc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.));
 
     world.add(Arc::new(Sphere::new(
         Point3::with_y(1.),
@@ -62,12 +62,12 @@ fn main() -> Result<(), io::Error> {
         Some(material_major_1),
     )));
     world.add(Arc::new(Sphere::new(
-        Point3::with_xyz(-4., 1., 0.),
+        Point3::new(-4., 1., 0.),
         1.,
         Some(material_major_2),
     )));
     world.add(Arc::new(Sphere::new(
-        Point3::with_xyz(4., 1., 0.),
+        Point3::new(4., 1., 0.),
         1.,
         Some(material_major_3),
     )));
@@ -79,7 +79,7 @@ fn main() -> Result<(), io::Error> {
         .set_samples_per_pixel(500)
         .set_max_depth(50)
         .set_vertical_view_angle(20.)
-        .set_look_from(Point3::with_xyz(13., 2., 3.))
+        .set_look_from(Point3::new(13., 2., 3.))
         .set_look_at(Point3::zero())
         .set_vup(Vec3::with_y(1.))
         .set_defocus_angle(0.6)

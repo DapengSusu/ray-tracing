@@ -1,0 +1,7 @@
+[package]
+name = "in-one-weekend-app"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+in_one_weekend_core = { path = "../../core/in-one-weekend" }

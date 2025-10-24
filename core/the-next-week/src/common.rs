@@ -12,20 +12,6 @@ pub struct Degrees(pub(crate) f64);
 #[derive(Debug, Default)]
 pub struct Radians(pub(crate) f64);
 
-impl Degrees {
-    /// Convert degrees to radians.
-    pub fn to_radians(&self) -> Radians {
-        Radians(self.0.to_radians())
-    }
-}
-
-impl Radians {
-    /// Convert radians to degrees.
-    pub fn to_degrees(&self) -> Degrees {
-        Degrees(self.0.to_degrees())
-    }
-}
-
 impl Deref for Degrees {
     type Target = f64;
 
@@ -47,7 +33,7 @@ impl Deref for Radians {
 /// # Examples
 ///
 /// ```rust
-/// # use ray_tracing_base::common;
+/// # use the_next_week_core::common;
 /// assert!((0. ..1.).contains(&common::random()));
 /// ```
 ///
@@ -63,7 +49,7 @@ pub fn random() -> f64 {
 /// # Examples
 ///
 /// ```rust
-/// # use ray_tracing_base::common;
+/// # use the_next_week_core::common;
 /// assert!((5.2..12.5).contains(&common::random_range(5.2, 12.5)));
 /// ```
 ///

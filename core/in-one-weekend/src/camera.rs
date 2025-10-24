@@ -84,7 +84,7 @@ fn ray_color<H: Hittable>(ray: Ray, depth: u32, world: Arc<H>) -> Color {
     let direction = ray.direction.to_unit();
     let a = 0.5 * (direction.y + 1.);
 
-    (1. - a) * Color::one() + a * Color::with_xyz(0.5, 0.7, 1.)
+    (1. - a) * Color::one() + a * Color::new(0.5, 0.7, 1.)
 }
 
 fn sample_square() -> Vec3 {
@@ -98,13 +98,18 @@ impl Camera {
     /// # Example
     ///
     /// ```no_run
-    /// # use ray_tracing_base::Camera;
+    /// # use in_one_weekend_core::{Camera, Point3, Vec3};
     /// let camera = Camera::builder()
     ///     .set_aspect_ratio(1.)
     ///     .set_image_width(100)
     ///     .set_samples_per_pixel(10)
     ///     .set_max_depth(10)
     ///     .set_vertical_view_angle(90.)
+    ///     .set_look_from(Point3::zero())
+    ///     .set_look_at(Point3::new(0., 0., -1.))
+    ///     .set_vup(Vec3::new(0., 1., 0.))
+    ///     .set_defocus_angle(0.)
+    ///     .set_focus_distance(10.)
     ///     .build();
     /// ```
     pub fn builder() -> Self {
@@ -281,7 +286,7 @@ impl Camera {
 
         // Determine viewport dimensions.
         let theta = self.vfov.to_radians();
-        let h = (*theta / 2.).tan();
+        let h = (theta / 2.).tan();
         let viewport_height = 2. * h * self.focus_dist;
         let viewport_width = viewport_height * (self.image_width as f64 / self.image_height as f64);
 

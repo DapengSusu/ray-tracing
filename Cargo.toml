@@ -1,6 +1,14 @@
 [workspace]
 resolver = "2"
-members = ["app", "base"]
+members = [
+    "app/in-one-weekend",
+    "app/the-next-week",
+    "core/in-one-weekend",
+    "core/the-next-week",
+]
+
+[workspace.dependencies]
+rayon = "1" # 并行处理
 
 [profile.release]
 codegen-units = 1
