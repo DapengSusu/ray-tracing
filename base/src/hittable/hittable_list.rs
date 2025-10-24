@@ -1,4 +1,7 @@
-use std::sync::Arc;
+use std::{
+    ops::{Deref, DerefMut},
+    sync::Arc,
+};
 
 use crate::prelude::*;
 
@@ -39,21 +42,6 @@ impl HittableList {
     pub fn add(&mut self, hittable: Arc<dyn Hittable>) {
         self.objects.push(hittable);
     }
-
-    /// Returns true if the list is empty.
-    pub fn is_empty(&self) -> bool {
-        self.objects.is_empty()
-    }
-
-    /// Returns the number of `Hittable` objects in the list.
-    pub fn len(&self) -> usize {
-        self.objects.len()
-    }
-
-    /// Clears the list of all `Hittable` objects.
-    pub fn clear(&mut self) {
-        self.objects.clear();
-    }
 }
 
 impl Hittable for HittableList {
@@ -69,5 +57,39 @@ impl Hittable for HittableList {
         }
 
         hit_record
+    }
+}
+
+impl Deref for HittableList {
+    type Target = Vec<Arc<dyn Hittable>>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.objects
+    }
+}
+
+impl DerefMut for HittableList {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.objects
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn hittable_list_deref_should_work() {
+        let mut list = HittableList::new();
+        assert!(list.is_empty());
+        assert_eq!(list.len(), 0);
+
+        list.add(Arc::new(Sphere::new(Point3::zero(), 1., None)));
+        assert!(!list.is_empty());
+        assert_eq!(list.len(), 1);
+
+        list.clear();
+        assert!(list.is_empty());
+        assert_eq!(list.len(), 0);
     }
 }
