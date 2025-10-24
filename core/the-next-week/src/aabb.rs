@@ -75,9 +75,9 @@ impl AABB {
         }
     }
 
-    pub fn hit(&self, r: &Ray, mut ray_t: Interval) -> bool {
-        let ray_origin = &r.origin;
-        let ray_direc = &r.direction;
+    pub fn hit(&self, ray: &Ray, mut ray_t: Interval) -> bool {
+        let ray_origin = &ray.origin;
+        let ray_direc = &ray.direction;
 
         for axis in 0..3 {
             let ax = &self[axis];

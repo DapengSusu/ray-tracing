@@ -1,6 +1,8 @@
+mod bvh;
 mod hittable_list;
 mod sphere;
 
+pub use bvh::BvhNode;
 pub use hittable_list::HittableList;
 pub use sphere::Sphere;
 

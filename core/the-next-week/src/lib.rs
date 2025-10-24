@@ -23,7 +23,7 @@ pub mod prelude {
     pub use crate::camera::Camera;
     pub use crate::color;
     pub use crate::common::{self, Degrees, Radians};
-    pub use crate::hittable::{HitRecord, Hittable, HittableList, Sphere};
+    pub use crate::hittable::{BvhNode, HitRecord, Hittable, HittableList, Sphere};
     pub use crate::interval::Interval;
     pub use crate::material::{Dielectric, Lambertian, Material, Metal};
     pub use crate::ray::Ray;

@@ -78,6 +78,8 @@ fn main() -> Result<(), io::Error> {
         Some(material_major_3),
     )));
 
+    world = HittableList::from_hittable(Arc::new(BvhNode::from_hittable_list(world)));
+
     // Camera render
     Camera::builder()
         .set_aspect_ratio(16. / 9.)
