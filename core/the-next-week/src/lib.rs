@@ -7,6 +7,7 @@ pub mod common;
 pub mod hittable;
 pub mod interval;
 pub mod material;
+pub mod texture;
 pub mod vec3;
 
 pub use aabb::AABB;
@@ -27,6 +28,7 @@ pub mod prelude {
     pub use crate::interval::Interval;
     pub use crate::material::{Dielectric, Lambertian, Material, Metal};
     pub use crate::ray::Ray;
+    pub use crate::texture::{CheckerTexture, SolidColor, Texture};
     pub use crate::vec3::Vec3 as Point3;
     pub use crate::vec3::Vec3 as Color;
     pub use crate::vec3::{self, Vec3, Vec3Iter};

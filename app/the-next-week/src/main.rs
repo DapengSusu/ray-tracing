@@ -21,7 +21,7 @@ fn generate_sphere_random() -> HittableList {
                 if material_random < 0.7 {
                     // diffuse
                     let albedo = Color::random() * Color::random();
-                    let material = Arc::new(Lambertian::new(albedo));
+                    let material = Arc::new(Lambertian::from_color(albedo));
                     let center_end = center + Vec3::with_y(common::random_range(0., 0.5));
                     world.add(Arc::new(Sphere::new_moving(
                         center,
@@ -51,7 +51,18 @@ fn main() -> Result<(), io::Error> {
     // World
     let mut world = generate_sphere_random();
 
-    let material_ground = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
+    let checker = Arc::new(CheckerTexture::from_colors(
+        0.32,
+        Color::new(0.2, 0.3, 0.1),
+        Color::with_isotropic(0.9),
+    ));
+    world.add(Arc::new(Sphere::new(
+        Point3::with_y(-1000.),
+        1000.,
+        Some(Arc::new(Lambertian::new(checker))),
+    )));
+
+    let material_ground = Arc::new(Lambertian::from_color(Color::new(0.5, 0.5, 0.5)));
     world.add(Arc::new(Sphere::new(
         Point3::with_y(-1000.),
         1000.,
@@ -59,7 +70,7 @@ fn main() -> Result<(), io::Error> {
     )));
 
     let material_major_1 = Arc::new(Dielectric::new(1.5));
-    let material_major_2 = Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)));
+    let material_major_2 = Arc::new(Lambertian::from_color(Color::new(0.4, 0.2, 0.1)));
     let material_major_3 = Arc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.));
 
     world.add(Arc::new(Sphere::new(

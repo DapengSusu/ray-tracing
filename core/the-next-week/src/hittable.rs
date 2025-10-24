@@ -13,6 +13,9 @@ use crate::prelude::*;
 #[derive(Default)]
 pub struct HitRecord {
     pub t: f64,
+    // (u,v) surface coordinates of the ray-object hit point.
+    pub u: f64,
+    pub v: f64,
     pub p: Point3,
     pub normal: Vec3,
     pub front_face: bool,
