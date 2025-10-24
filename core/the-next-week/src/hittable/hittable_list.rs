@@ -9,6 +9,7 @@ use crate::prelude::*;
 #[derive(Default)]
 pub struct HittableList {
     pub objects: Vec<Arc<dyn Hittable>>,
+    bounding_box: AABB,
 }
 
 impl HittableList {
@@ -16,6 +17,7 @@ impl HittableList {
     pub fn new() -> Self {
         Self {
             objects: Vec::new(),
+            bounding_box: AABB::default(),
         }
     }
 
@@ -23,23 +25,36 @@ impl HittableList {
     pub fn with_capacity(capacity: usize) -> Self {
         Self {
             objects: Vec::with_capacity(capacity),
+            bounding_box: AABB::default(),
         }
     }
 
     /// Creates a new `HittableList` containing a `Hittable` object.
     pub fn from_hittable(hittable: Arc<dyn Hittable>) -> Self {
+        let bounding_box = AABB::from_boxes(&AABB::default(), hittable.bounding_box());
+
         Self {
             objects: vec![hittable],
+            bounding_box,
         }
     }
 
     /// Creates a new `HittableList` containing multiple `Hittable` objects.
     pub fn from_hittables(objects: Vec<Arc<dyn Hittable>>) -> Self {
-        Self { objects }
+        let bounding_box: AABB = objects
+            .iter()
+            .map(|hittable| hittable.bounding_box().to_owned())
+            .sum();
+
+        Self {
+            objects,
+            bounding_box,
+        }
     }
 
     /// Adds a `Hittable` object to the list.
     pub fn add(&mut self, hittable: Arc<dyn Hittable>) {
+        self.bounding_box = AABB::from_boxes(&self.bounding_box, hittable.bounding_box());
         self.objects.push(hittable);
     }
 }
@@ -57,6 +72,10 @@ impl Hittable for HittableList {
         }
 
         hit_record
+    }
+
+    fn bounding_box(&self) -> &AABB {
+        &self.bounding_box
     }
 }
 

@@ -6,7 +6,7 @@ pub use sphere::Sphere;
 
 use std::sync::Arc;
 
-use crate::{Point3, Vec3, interval::Interval, material::Material, ray::Ray};
+use crate::prelude::*;
 
 #[derive(Default)]
 pub struct HitRecord {
@@ -60,4 +60,5 @@ impl HitRecord {
 /// Trait for objects that can be hit by rays.
 pub trait Hittable: Sync + Send {
     fn hit(&self, ray: &Ray, ray_t: Interval) -> Option<HitRecord>;
+    fn bounding_box(&self) -> &AABB;
 }

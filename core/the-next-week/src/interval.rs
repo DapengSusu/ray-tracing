@@ -1,5 +1,5 @@
 /// Manage real-valued intervals with a minimum and a maximum.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Interval {
     pub min: f64,
     pub max: f64,
@@ -21,6 +21,25 @@ impl Interval {
     /// Create a new interval from a minimum and a maximum.
     pub fn new(min: f64, max: f64) -> Self {
         Self { min, max }
+    }
+
+    /// Create the interval tightly enclosing the two input intervals.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use the_next_week_core::Interval;
+    /// let interval1 = Interval::new(0.0, 1.0);
+    /// let interval2 = Interval::new(2.0, 3.0);
+    /// let expected = Interval::new(0.0, 3.0);
+    ///
+    /// assert_eq!(Interval::with_enclosing(&interval1, &interval2), expected);
+    /// ```
+    pub fn with_enclosing(a: &Self, b: &Self) -> Self {
+        Self {
+            min: a.min.min(b.min),
+            max: a.max.max(b.max),
+        }
     }
 
     /// Check if the interval contains a value.
@@ -62,6 +81,17 @@ impl Interval {
     /// Panics if `min > max`, `min` is NaN, or `max` is NaN.
     pub fn clamp(&self, x: f64) -> f64 {
         x.clamp(self.min, self.max)
+    }
+
+    /// Extend the interval by a given delta, padding is half of the delta.
+    /// `min` will subtract padding, `max` will add padding.
+    pub fn extend(&self, delta: f64) -> Self {
+        let padding = delta / 2.;
+
+        Self {
+            min: self.min - padding,
+            max: self.max + padding,
+        }
     }
 }
 
@@ -120,5 +150,23 @@ mod tests {
         assert_eq!(interval.clamp(1.5), 1.5);
         assert_eq!(interval.clamp(2.5), 2.5);
         assert_eq!(interval.clamp(3.0), 2.5);
+    }
+
+    #[test]
+    fn interval_extend_should_work() {
+        let interval = Interval::new(1.2, 2.5);
+
+        assert_eq!(interval.extend(1.), Interval::new(0.7, 3.0));
+    }
+
+    #[test]
+    fn interval_with_enclosing_should_work() {
+        let interval1 = Interval::new(1.2, 2.5);
+        let interval2 = Interval::new(0.5, 3.0);
+
+        assert_eq!(
+            Interval::with_enclosing(&interval1, &interval2),
+            Interval::new(0.5, 3.0)
+        );
     }
 }

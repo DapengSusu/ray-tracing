@@ -124,6 +124,11 @@ impl Vec3 {
         }
     }
 
+    /// Return the absolute value of the vector.
+    pub fn abs(&self) -> Self {
+        Self::new(self.x.abs(), self.y.abs(), self.z.abs())
+    }
+
     /// Return true if the vector is close to zero in all dimensions.
     pub fn near_zero(&self) -> bool {
         self.near_zero_by(Some(1e-8))
