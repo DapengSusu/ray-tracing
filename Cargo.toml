@@ -4,6 +4,7 @@ members = [
     "app/in-one-weekend",
     "app/the-next-week",
     "core/in-one-weekend",
+    "core/mini-stb",
     "core/the-next-week",
 ]
 
