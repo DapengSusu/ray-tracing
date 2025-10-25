@@ -83,15 +83,24 @@ impl Interval {
         x.clamp(self.min, self.max)
     }
 
-    /// Extend the interval by a given delta, padding is half of the delta.
+    /// Return an expanded interval by a given delta, padding is half of the delta.
     /// `min` will subtract padding, `max` will add padding.
-    pub fn extend(&self, delta: f64) -> Self {
+    pub fn expand_to(&self, delta: f64) -> Self {
         let padding = delta / 2.;
 
         Self {
             min: self.min - padding,
             max: self.max + padding,
         }
+    }
+
+    /// Expand self by a given delta, padding is half of the delta.
+    /// `min` will subtract padding, `max` will add padding.
+    pub fn expand(&mut self, delta: f64) {
+        let padding = delta / 2.;
+
+        self.min -= padding;
+        self.max += padding;
     }
 }
 
@@ -156,7 +165,7 @@ mod tests {
     fn interval_extend_should_work() {
         let interval = Interval::new(1.2, 2.5);
 
-        assert_eq!(interval.extend(1.), Interval::new(0.7, 3.0));
+        assert_eq!(interval.expand_to(1.), Interval::new(0.7, 3.0));
     }
 
     #[test]

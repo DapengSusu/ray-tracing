@@ -4,6 +4,7 @@ mod bouncing_spheres;
 mod checkered_spheres;
 mod earth;
 mod perlin_spheres;
+mod quads;
 
 fn main() -> Result<(), io::Error> {
     let arg = env::args().nth(1).unwrap_or_default();
@@ -14,6 +15,7 @@ fn main() -> Result<(), io::Error> {
         2 => checkered_spheres::checkered_spheres(),
         3 => earth::earth(),
         4 => perlin_spheres::perlin_spheres(),
+        5 => quads::quads(),
         _ => Ok(()),
     }
 }

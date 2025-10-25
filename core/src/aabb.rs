@@ -30,7 +30,7 @@ pub struct AABB {
 impl AABB {
     /// Create a new AABB from the given intervals.
     pub fn new(x: Interval, y: Interval, z: Interval) -> Self {
-        Self { x, y, z }
+        Self { x, y, z }.pad_to_minimums()
     }
 
     /// Construct an axis-aligned bounding box with two points.
@@ -58,6 +58,7 @@ impl AABB {
             y: Interval::new(a.y.min(b.y), a.y.max(b.y)),
             z: Interval::new(a.z.min(b.z), a.z.max(b.z)),
         }
+        .pad_to_minimums()
     }
 
     /// Construct an axis-aligned bounding box from two input boxes.
@@ -126,6 +127,23 @@ impl AABB {
         }
 
         true
+    }
+
+    // Adjust the AABB so that no side is narrower than some delta, padding if necessary.
+    fn pad_to_minimums(mut self) -> Self {
+        const DELTA: f64 = 0.0001;
+
+        if self.x.size() < DELTA {
+            self.x.expand(DELTA);
+        }
+        if self.y.size() < DELTA {
+            self.y.expand(DELTA);
+        }
+        if self.z.size() < DELTA {
+            self.z.expand(DELTA);
+        }
+
+        self
     }
 }
 

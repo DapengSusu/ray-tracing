@@ -1,9 +1,11 @@
 mod bvh;
 mod hittable_list;
+mod quad;
 mod sphere;
 
 pub use bvh::BvhNode;
 pub use hittable_list::HittableList;
+pub use quad::Quad;
 pub use sphere::Sphere;
 
 use std::sync::Arc;
