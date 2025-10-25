@@ -57,6 +57,10 @@ fn trilinear_interp(c: &[[[f64; 2]; 2]; 2], p: &Point3) -> f64 {
     let v = p.y - p.y.floor();
     let w = p.z - p.z.floor();
 
+    let u = u * u * (3. - 2. * u);
+    let v = v * v * (3. - 2. * v);
+    let w = w * w * (3. - 2. * w);
+
     c.iter()
         .enumerate()
         .map(|(i, ic)| {
