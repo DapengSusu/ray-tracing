@@ -1,6 +1,6 @@
 use std::{ops::Deref, sync::LazyLock};
 
-use rand::distr::{Distribution, Uniform};
+use rand::distr::{Distribution, Uniform, uniform::SampleUniform};
 
 static RANDOM_RANGE: LazyLock<Uniform<f64>> = LazyLock::new(|| Uniform::new(0., 1.).unwrap());
 
@@ -28,6 +28,19 @@ impl Deref for Radians {
     }
 }
 
+/// UV坐标
+#[derive(Debug, Default)]
+pub struct UvCoord {
+    pub u: f64,
+    pub v: f64,
+}
+
+impl UvCoord {
+    pub fn new(u: f64, v: f64) -> Self {
+        Self { u, v }
+    }
+}
+
 /// Generate a random floating-point number between 0 and 1.
 ///
 /// # Examples
@@ -44,20 +57,25 @@ pub fn random() -> f64 {
     RANDOM_RANGE.sample(&mut rand::rng())
 }
 
-/// Generate a random floating-point number between `min` and `max`.
+/// Generate a random value between `min` and `max`.
 ///
 /// # Examples
 ///
 /// ```rust
 /// # use ray_tracing_core::common;
+/// // floating-point number
 /// assert!((5.2..12.5).contains(&common::random_range(5.2, 12.5)));
+/// // integer
+/// assert!((5..12).contains(&common::random_range(5, 12)));
+/// // character
+/// assert!(('a'..='z').contains(&common::random_range('a', 'z')));
 /// ```
 ///
 /// # Note
 ///
 /// [min, max)
-pub fn random_range(min: f64, max: f64) -> f64 {
-    min + (max - min) * random()
+pub fn random_range<T: SampleUniform>(min: T, max: T) -> T {
+    Uniform::new(min, max).unwrap().sample(&mut rand::rng())
 }
 
 /// Check if two f64 values are relatively equal within a given epsilon.
@@ -83,7 +101,12 @@ mod tests {
 
     #[test]
     fn random_range_should_work() {
-        assert!((5.2..12.5).contains(&random_range(5.2, 12.5)));
+        assert!((0.2..0.5).contains(&random_range(0.2, 0.5)));
+
+        for _ in 0..100 {
+            assert_eq!(random_range('a', 'b'), 'a');
+            assert_eq!(random_range(1_u32, 2), 1);
+        }
     }
 
     #[test]

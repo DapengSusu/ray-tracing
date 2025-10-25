@@ -1,16 +1,20 @@
+mod bvh;
 mod hittable_list;
 mod sphere;
 
+pub use bvh::BvhNode;
 pub use hittable_list::HittableList;
 pub use sphere::Sphere;
 
 use std::sync::Arc;
 
-use crate::{Point3, Vec3, interval::Interval, material::Material, ray::Ray};
+use crate::prelude::*;
 
 #[derive(Default)]
 pub struct HitRecord {
     pub t: f64,
+    /// (u,v) surface coordinates of the ray-object hit point.
+    pub uv: UvCoord,
     pub p: Point3,
     pub normal: Vec3,
     pub front_face: bool,
@@ -26,6 +30,12 @@ impl HitRecord {
     /// Sets the parameter `t` of the hit record.
     pub fn set_t(mut self, t: f64) -> Self {
         self.t = t;
+        self
+    }
+
+    /// Sets the parameter `uv` of the hit record.
+    pub fn set_uv(mut self, uv: UvCoord) -> Self {
+        self.uv = uv;
         self
     }
 
@@ -60,4 +70,5 @@ impl HitRecord {
 /// Trait for objects that can be hit by rays.
 pub trait Hittable: Sync + Send {
     fn hit(&self, ray: &Ray, ray_t: Interval) -> Option<HitRecord>;
+    fn bounding_box(&self) -> &AABB;
 }

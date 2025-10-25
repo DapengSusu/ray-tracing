@@ -40,7 +40,8 @@ impl Material for Dielectric {
             // refraction
             vec3::refract(&unit_direction, &hit.normal, ri)
         };
+        let scattered = Ray::new_with_time(hit.p, direction, ray_in.time);
 
-        Some((Color::one(), Ray::new(hit.p, direction)))
+        Some((Color::one(), scattered))
     }
 }

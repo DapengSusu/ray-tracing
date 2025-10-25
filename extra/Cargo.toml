@@ -1,0 +1,9 @@
+[package]
+name = "ray_tracing_extra"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+image = "0.25"
+palette = "0.7"
+thiserror = "2"
