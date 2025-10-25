@@ -2,6 +2,8 @@
 
 ## Introduction
 
+参考：https://raytracing.github.io/
+
 ## Usage
 
 ```sh
@@ -14,3 +16,8 @@ git checkout the-next-week
 make bt
 make run
 ```
+
+## Todo
+
+- [ ] 在数据结构中引入 Cow<'a, B> 结构避免不必要拷贝
+- [ ] 尝试使用枚举优化 dyn trait，避免动态分发

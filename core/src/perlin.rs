@@ -16,7 +16,7 @@ impl Perlin {
         Self::default()
     }
 
-    pub fn noise(&self, p: Point3) -> f64 {
+    pub fn noise(&self, p: &Point3) -> f64 {
         // Note: 这里的 p.x 是 f64，数值有正有负，不能转为 u64，
         // 否则会丢失数据得到异常的图像
         let i = p.x.floor() as i64;
@@ -39,11 +39,40 @@ impl Perlin {
             });
         });
 
-        perlin_interp(&c, &p)
+        perlin_interp(&c, p)
+    }
+
+    /// 湍流
+    ///
+    /// A composite noise that has multiple summed frequencies is used.
+    /// This is usually called turbulence, and is a sum of repeated calls to noise.
+    pub fn turbulence(&self, p: &Point3, depth: usize) -> f64 {
+        // let mut accum = 0.;
+        let mut weight = 1. * 2.;
+        let mut temp_p = p / 2.;
+
+        (0..depth)
+            .map(|_| {
+                // let accum = weight * self.noise(temp_p);
+                weight *= 0.5;
+                temp_p *= 2.;
+
+                weight * self.noise(&temp_p)
+                // accum
+            })
+            .sum::<f64>()
+            .abs()
+
+        // for _ in 0..depth {
+        //     accum += weight * self.noise(temp_p);
+        //     weight *= 0.5;
+        //     temp_p *= 2.;
+        // }
+
+        // accum.abs()
     }
 }
 
-// 线性插值
 fn perlin_interp(c: &[[[Vec3; 2]; 2]; 2], p: &Point3) -> f64 {
     let u = p.x - p.x.floor();
     let v = p.y - p.y.floor();

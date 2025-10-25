@@ -4,20 +4,20 @@ use crate::{Color, Point3, common::UvCoord, perlin::Perlin, texture::Texture};
 #[derive(Default)]
 pub struct NoiseTexture {
     noise: Perlin,
-    scale: f64,
+    _scale: f64,
 }
 
 impl NoiseTexture {
     pub fn new(scale: f64) -> Self {
         Self {
             noise: Perlin::default(),
-            scale,
+            _scale: scale,
         }
     }
 }
 
 impl Texture for NoiseTexture {
     fn value(&self, _uv: &UvCoord, p: &Point3) -> Point3 {
-        Color::one() * 0.5 * (1. + self.noise.noise(self.scale * p))
+        Color::one() * self.noise.turbulence(p, 7)
     }
 }
