@@ -1,12 +1,6 @@
 [workspace]
 resolver = "2"
-members = [
-    "app/in-one-weekend",
-    "app/the-next-week",
-    "core/in-one-weekend",
-    "core/mini-stb",
-    "core/the-next-week",
-]
+members = ["app", "core"]
 
 [workspace.dependencies]
 rayon = "1" # 并行处理

@@ -1,0 +1,7 @@
+[package]
+name = "ray-tracing-app"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ray_tracing_core = { path = "../core" }

@@ -1,7 +1,0 @@
-[package]
-name = "the-next-week-app"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-the_next_week_core = { path = "../../core/the-next-week" }

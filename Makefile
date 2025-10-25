@@ -15,7 +15,7 @@ test:
 
 # 运行项目
 run:
-	cargo run --release -q -p the-next-week-app -- 4 > images/TheNextWeek/output.ppm
+	cargo run --release -q > images/output.ppm
 
 # 清理项目
 clean:
