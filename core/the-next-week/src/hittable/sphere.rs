@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{f64::consts::PI, sync::Arc};
 
 use crate::prelude::*;
 
@@ -44,6 +44,34 @@ impl Sphere {
             bounding_box: AABB::from_boxes(&box0, &box1),
         }
     }
+
+    /// Takes points on the unit sphere centered at the origin, and computes (u, v)
+    ///
+    /// * p: a given point on the sphere of radius one, centered at the origin.
+    ///
+    /// # Returns
+    ///
+    /// (u, v)
+    ///
+    /// * u: returned value [0,1] of angle around the Y axis from X=-1.
+    /// * v: returned value [0,1] of angle from Y=-1 to Y=+1.
+    ///
+    /// # Tip
+    ///
+    /// <1 0 0> yields <0.50 0.50>       <-1  0  0> yields <0.00 0.50>
+    ///
+    /// <0 1 0> yields <0.50 1.00>       < 0 -1  0> yields <0.50 0.00>
+    ///
+    /// <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
+    pub fn get_sphere_uv(p: &Point3) -> UvCoord {
+        let theta = (-p.y).acos();
+        let phi = (-p.z).atan2(p.x) + PI;
+
+        let u = phi / (2. * PI);
+        let v = theta / PI;
+
+        UvCoord::new(u, v)
+    }
 }
 
 impl Hittable for Sphere {
@@ -77,6 +105,7 @@ impl Hittable for Sphere {
         let hit_record = HitRecord::builder()
             .set_t(t)
             .set_p(p)
+            .set_uv(Self::get_sphere_uv(&outward_normal))
             .set_face_normal(ray, outward_normal)
             .set_material(self.material.clone());
 

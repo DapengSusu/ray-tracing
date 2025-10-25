@@ -202,7 +202,9 @@ impl Camera {
     pub fn build(self) -> Self {
         self.initialize()
     }
+}
 
+impl Camera {
     /// Render the scene with the given world.
     ///
     /// # Note

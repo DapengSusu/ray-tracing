@@ -13,9 +13,8 @@ use crate::prelude::*;
 #[derive(Default)]
 pub struct HitRecord {
     pub t: f64,
-    // (u,v) surface coordinates of the ray-object hit point.
-    pub u: f64,
-    pub v: f64,
+    /// (u,v) surface coordinates of the ray-object hit point.
+    pub uv: UvCoord,
     pub p: Point3,
     pub normal: Vec3,
     pub front_face: bool,
@@ -31,6 +30,12 @@ impl HitRecord {
     /// Sets the parameter `t` of the hit record.
     pub fn set_t(mut self, t: f64) -> Self {
         self.t = t;
+        self
+    }
+
+    /// Sets the parameter `uv` of the hit record.
+    pub fn set_uv(mut self, uv: UvCoord) -> Self {
+        self.uv = uv;
         self
     }
 

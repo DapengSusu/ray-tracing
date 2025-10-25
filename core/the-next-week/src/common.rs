@@ -28,6 +28,19 @@ impl Deref for Radians {
     }
 }
 
+/// UV坐标
+#[derive(Debug, Default)]
+pub struct UvCoord {
+    pub u: f64,
+    pub v: f64,
+}
+
+impl UvCoord {
+    pub fn new(u: f64, v: f64) -> Self {
+        Self { u, v }
+    }
+}
+
 /// Generate a random floating-point number between 0 and 1.
 ///
 /// # Examples

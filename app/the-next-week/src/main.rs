@@ -2,6 +2,7 @@ use std::{env, io};
 
 mod bouncing_spheres;
 mod checkered_spheres;
+mod earth;
 
 fn main() -> Result<(), io::Error> {
     let arg = env::args().nth(1).unwrap_or_default();
@@ -10,6 +11,7 @@ fn main() -> Result<(), io::Error> {
     match idx {
         1 => bouncing_spheres::bouncing_spheres(),
         2 => checkered_spheres::checkered_spheres(),
+        3 => earth::earth(),
         _ => Ok(()),
     }
 }

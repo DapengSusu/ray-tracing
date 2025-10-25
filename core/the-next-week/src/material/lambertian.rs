@@ -30,7 +30,7 @@ impl Material for Lambertian {
             scatter_direction = hit.normal;
         }
 
-        let attenuation = self.texture.value(hit.u, hit.v, &hit.p);
+        let attenuation = self.texture.value(&hit.uv, &hit.p);
         let scattered = Ray::new_with_time(hit.p, scatter_direction, ray_in.time);
 
         Some((attenuation, scattered))
