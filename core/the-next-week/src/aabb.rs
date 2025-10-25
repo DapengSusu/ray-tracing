@@ -38,8 +38,8 @@ impl AABB {
     /// # Examples
     ///
     /// ```rust
-    /// # use the_next_week_core::AABB;
-    /// # use the_next_week_core::Interval;
+    /// # use the_next_week_core::aabb::AABB;
+    /// # use the_next_week_core::interval::Interval;
     /// # use the_next_week_core::Point3;
     /// let a = Point3::new(1., 2., 3.);
     /// let b = Point3::new(1.5, 1.5, 3.5);
@@ -65,8 +65,8 @@ impl AABB {
     /// # Examples
     ///
     /// ```rust
-    /// # use the_next_week_core::AABB;
-    /// # use the_next_week_core::Interval;
+    /// # use the_next_week_core::aabb::AABB;
+    /// # use the_next_week_core::interval::Interval;
     /// # use the_next_week_core::Point3;
     /// let box1 = AABB::with_points(
     ///     Point3::new(0.5, 2., 1.),

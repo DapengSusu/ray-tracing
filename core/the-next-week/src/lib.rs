@@ -1,19 +1,15 @@
-mod camera;
-mod ray;
-
 pub mod aabb;
+pub mod camera;
 pub mod color;
 pub mod common;
 pub mod hittable;
 pub mod interval;
 pub mod material;
+pub mod perlin;
+pub mod ray;
 pub mod texture;
 pub mod vec3;
 
-pub use aabb::AABB;
-pub use camera::Camera;
-pub use interval::Interval;
-pub use ray::Ray;
 pub use vec3::Vec3 as Point3;
 pub use vec3::Vec3 as Color;
 pub use vec3::{Vec3, Vec3Iter};
@@ -27,8 +23,9 @@ pub mod prelude {
     pub use crate::hittable::{BvhNode, HitRecord, Hittable, HittableList, Sphere};
     pub use crate::interval::Interval;
     pub use crate::material::{Dielectric, Lambertian, Material, Metal};
+    pub use crate::perlin::Perlin;
     pub use crate::ray::Ray;
-    pub use crate::texture::{CheckerTexture, ImageTexture, SolidColor, Texture};
+    pub use crate::texture::{CheckerTexture, ImageTexture, NoiseTexture, SolidColor, Texture};
     pub use crate::vec3::Vec3 as Point3;
     pub use crate::vec3::Vec3 as Color;
     pub use crate::vec3::{self, Vec3, Vec3Iter};

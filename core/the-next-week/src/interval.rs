@@ -28,7 +28,7 @@ impl Interval {
     /// # Examples
     ///
     /// ```rust
-    /// # use the_next_week_core::Interval;
+    /// # use the_next_week_core::interval::Interval;
     /// let interval1 = Interval::new(0.0, 1.0);
     /// let interval2 = Interval::new(2.0, 3.0);
     /// let expected = Interval::new(0.0, 3.0);

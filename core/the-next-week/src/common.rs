@@ -101,7 +101,12 @@ mod tests {
 
     #[test]
     fn random_range_should_work() {
-        assert!((5.2..12.5).contains(&random_range(5.2, 12.5)));
+        assert!((0.2..0.5).contains(&random_range(0.2, 0.5)));
+
+        for _ in 0..100 {
+            assert_eq!(random_range('a', 'b'), 'a');
+            assert_eq!(random_range(1_u32, 2), 1);
+        }
     }
 
     #[test]

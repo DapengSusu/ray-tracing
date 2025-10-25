@@ -97,8 +97,8 @@ impl Camera {
     ///
     /// # Example
     ///
-    /// ```no_run
-    /// # use the_next_week_core::{Camera, Point3, Vec3};
+    /// ```rust
+    /// # use the_next_week_core::{camera::Camera, Point3, Vec3};
     /// let camera = Camera::builder()
     ///     .set_aspect_ratio(1.)
     ///     .set_image_width(100)
