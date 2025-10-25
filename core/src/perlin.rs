@@ -1,9 +1,9 @@
-use crate::{Point3, common};
+use crate::{Point3, Vec3, common};
 
 /// Perlin noise, it takes a 3D point as input and always returns
 /// the same randomish number. Nearby points return similar numbers.
 pub struct Perlin {
-    rand_floats: [f64; POINT_COUNT],
+    rand_vecs: [Vec3; POINT_COUNT],
     perm_x: [usize; POINT_COUNT],
     perm_y: [usize; POINT_COUNT],
     perm_z: [usize; POINT_COUNT],
@@ -23,7 +23,7 @@ impl Perlin {
         let j = p.y.floor() as i64;
         let k = p.z.floor() as i64;
 
-        let mut c = [[[0_f64; 2]; 2]; 2];
+        let mut c = [[[Vec3::zero(); 2]; 2]; 2];
 
         (0_usize..2).for_each(|di| {
             (0_usize..2).for_each(|dj| {
@@ -34,25 +34,24 @@ impl Perlin {
                     let k = ((k + dk as i64) & 255) as usize;
 
                     c[di][dj][dk] =
-                        self.rand_floats[self.perm_x[i] ^ self.perm_y[j] ^ self.perm_z[k]];
+                        self.rand_vecs[self.perm_x[i] ^ self.perm_y[j] ^ self.perm_z[k]];
                 });
             });
         });
 
-        trilinear_interp(&c, &p)
+        perlin_interp(&c, &p)
     }
 }
 
 // 线性插值
-fn trilinear_interp(c: &[[[f64; 2]; 2]; 2], p: &Point3) -> f64 {
+fn perlin_interp(c: &[[[Vec3; 2]; 2]; 2], p: &Point3) -> f64 {
     let u = p.x - p.x.floor();
     let v = p.y - p.y.floor();
     let w = p.z - p.z.floor();
 
-    // 使用 Hermite 立方来四舍五入插值
-    let u = u * u * (3. - 2. * u);
-    let v = v * v * (3. - 2. * v);
-    let w = w * w * (3. - 2. * w);
+    let uu = u * u * (3. - 2. * u);
+    let vv = v * v * (3. - 2. * v);
+    let ww = w * w * (3. - 2. * w);
 
     c.iter()
         .enumerate()
@@ -63,10 +62,16 @@ fn trilinear_interp(c: &[[[f64; 2]; 2]; 2], p: &Point3) -> f64 {
                     jc.iter()
                         .enumerate()
                         .map(|(k, val)| {
-                            (i as f64 * u + (1. - i as f64) * (1. - u))
-                                * (j as f64 * v + (1. - j as f64) * (1. - v))
-                                * (k as f64 * w + (1. - k as f64) * (1. - w))
-                                * val
+                            let i = i as f64;
+                            let j = j as f64;
+                            let k = k as f64;
+
+                            let weight_v = Vec3::new(u - i, v - j, w - k);
+
+                            (i * uu + (1. - i) * (1. - uu))
+                                * (j * vv + (1. - j) * (1. - vv))
+                                * (k * ww + (1. - k) * (1. - ww))
+                                * val.dot(&weight_v)
                         })
                         .sum::<f64>()
                 })
@@ -77,13 +82,14 @@ fn trilinear_interp(c: &[[[f64; 2]; 2]; 2], p: &Point3) -> f64 {
 
 impl Default for Perlin {
     fn default() -> Self {
-        let mut rand_floats = [0.; POINT_COUNT];
+        let mut rand_vecs = [Vec3::zero(); POINT_COUNT];
         let mut perm_x = [0; POINT_COUNT];
         let mut perm_y = [0; POINT_COUNT];
         let mut perm_z = [0; POINT_COUNT];
 
         for i in 0..POINT_COUNT {
-            rand_floats[i] = common::random();
+            rand_vecs[i] = Vec3::random_range(-1., 1.).to_unit();
+
             perm_x[i] = i;
             perm_y[i] = i;
             perm_z[i] = i;
@@ -94,7 +100,7 @@ impl Default for Perlin {
         permute_perm(&mut perm_z);
 
         Self {
-            rand_floats,
+            rand_vecs,
             perm_x,
             perm_y,
             perm_z,

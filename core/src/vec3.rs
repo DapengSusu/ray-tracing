@@ -310,7 +310,7 @@ impl Vec3 {
     /// # Note
     ///
     /// Need to calculate the length of the vector by using `sqrt()`
-    pub fn to_unit(&self) -> Self {
+    pub fn to_unit(self) -> Self {
         unit_vec3(self)
     }
 
@@ -344,8 +344,8 @@ pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
 }
 
 /// Returns the unit vector of a vector.
-pub fn unit_vec3(v: &Vec3) -> Vec3 {
-    *v / v.length()
+pub fn unit_vec3(v: Vec3) -> Vec3 {
+    v / v.length()
 }
 
 /// Calculates the reflection.

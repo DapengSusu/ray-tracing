@@ -18,6 +18,6 @@ impl NoiseTexture {
 
 impl Texture for NoiseTexture {
     fn value(&self, _uv: &UvCoord, p: &Point3) -> Point3 {
-        Color::one() * self.noise.noise(self.scale * p)
+        Color::one() * 0.5 * (1. + self.noise.noise(self.scale * p))
     }
 }
