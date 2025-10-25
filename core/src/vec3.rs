@@ -474,11 +474,24 @@ impl Mul for Vec3 {
 impl Mul<f64> for Vec3 {
     type Output = Self;
 
-    fn mul(self, scalar: f64) -> Self::Output {
+    fn mul(self, rhs: f64) -> Self::Output {
         Self {
-            x: self.x * scalar,
-            y: self.y * scalar,
-            z: self.z * scalar,
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+        }
+    }
+}
+
+// &v * scalar
+impl Mul<f64> for &Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Vec3 {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
         }
     }
 }
@@ -492,12 +505,30 @@ impl Mul<Vec3> for f64 {
     }
 }
 
+// scalar * &v
+impl Mul<&Vec3> for f64 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: &Vec3) -> Self::Output {
+        rhs * self
+    }
+}
+
 // v * scalar
 impl Mul<u32> for Vec3 {
     type Output = Self;
 
-    fn mul(self, scalar: u32) -> Self::Output {
-        self * scalar as f64
+    fn mul(self, rhs: u32) -> Self::Output {
+        self * rhs as f64
+    }
+}
+
+// &v * scalar
+impl Mul<u32> for &Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: u32) -> Self::Output {
+        self * rhs as f64
     }
 }
 
@@ -506,6 +537,15 @@ impl Mul<Vec3> for u32 {
     type Output = Vec3;
 
     fn mul(self, rhs: Vec3) -> Self::Output {
+        rhs * self as f64
+    }
+}
+
+// scalar * &v
+impl Mul<&Vec3> for u32 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: &Vec3) -> Self::Output {
         rhs * self as f64
     }
 }
@@ -527,8 +567,17 @@ impl Div for Vec3 {
 impl Div<f64> for Vec3 {
     type Output = Self;
 
-    fn div(self, scalar: f64) -> Self::Output {
-        self * (1. / scalar)
+    fn div(self, rhs: f64) -> Self::Output {
+        self * (1. / rhs)
+    }
+}
+
+// &v / scalar
+impl Div<f64> for &Vec3 {
+    type Output = Vec3;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        self * (1. / rhs)
     }
 }
 
@@ -536,8 +585,17 @@ impl Div<f64> for Vec3 {
 impl Div<u32> for Vec3 {
     type Output = Self;
 
-    fn div(self, scalar: u32) -> Self::Output {
-        self / scalar as f64
+    fn div(self, rhs: u32) -> Self::Output {
+        self / rhs as f64
+    }
+}
+
+// &v / scalar
+impl Div<u32> for &Vec3 {
+    type Output = Vec3;
+
+    fn div(self, rhs: u32) -> Self::Output {
+        self / rhs as f64
     }
 }
 
@@ -576,19 +634,19 @@ impl MulAssign for Vec3 {
 
 // v *= scalar
 impl MulAssign<f64> for Vec3 {
-    fn mul_assign(&mut self, scalar: f64) {
+    fn mul_assign(&mut self, rhs: f64) {
         *self = Self {
-            x: self.x * scalar,
-            y: self.y * scalar,
-            z: self.z * scalar,
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
         };
     }
 }
 
 // v *= scalar
 impl MulAssign<u32> for Vec3 {
-    fn mul_assign(&mut self, scalar: u32) {
-        *self *= scalar as f64;
+    fn mul_assign(&mut self, rhs: u32) {
+        *self *= rhs as f64;
     }
 }
 
@@ -605,15 +663,15 @@ impl DivAssign for Vec3 {
 
 // v /= scalar
 impl DivAssign<f64> for Vec3 {
-    fn div_assign(&mut self, scalar: f64) {
-        *self *= 1. / scalar;
+    fn div_assign(&mut self, rhs: f64) {
+        *self *= 1. / rhs;
     }
 }
 
 // v /= scalar
 impl DivAssign<u32> for Vec3 {
-    fn div_assign(&mut self, scalar: u32) {
-        *self /= scalar as f64;
+    fn div_assign(&mut self, rhs: u32) {
+        *self /= rhs as f64;
     }
 }
 

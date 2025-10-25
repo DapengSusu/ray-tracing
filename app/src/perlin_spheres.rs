@@ -5,7 +5,7 @@ use ray_tracing_core::prelude::*;
 pub fn perlin_spheres() -> Result<(), io::Error> {
     eprintln!("Running Perlin Spheres...");
 
-    let texture_perlin = Arc::new(NoiseTexture::new());
+    let texture_perlin = Arc::new(NoiseTexture::new(4.));
 
     let world = HittableList::from_hittables(vec![
         Arc::new(Sphere::new(

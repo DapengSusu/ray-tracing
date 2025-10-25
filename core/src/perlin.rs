@@ -16,7 +16,7 @@ impl Perlin {
         Self::default()
     }
 
-    pub fn noise(&self, p: &Point3) -> f64 {
+    pub fn noise(&self, p: Point3) -> f64 {
         // Note: 这里的 p.x 是 f64，数值有正有负，不能转为 u64，
         // 否则会丢失数据得到异常的图像
         let i = p.x.floor() as i64;
@@ -39,15 +39,7 @@ impl Perlin {
             });
         });
 
-        trilinear_interp(&c, p)
-
-        // // Note: 这里的 p.x 是 f64，数值有正有负，不能转为 u64，
-        // // 否则会丢失数据得到异常的图像
-        // let i = ((4. * p.x) as i64 & 255) as usize;
-        // let j = ((4. * p.y) as i64 & 255) as usize;
-        // let k = ((4. * p.z) as i64 & 255) as usize;
-
-        // self.rand_floats[self.perm_x[i] ^ self.perm_y[j] ^ self.perm_z[k]]
+        trilinear_interp(&c, &p)
     }
 }
 
@@ -57,6 +49,7 @@ fn trilinear_interp(c: &[[[f64; 2]; 2]; 2], p: &Point3) -> f64 {
     let v = p.y - p.y.floor();
     let w = p.z - p.z.floor();
 
+    // 使用 Hermite 立方来四舍五入插值
     let u = u * u * (3. - 2. * u);
     let v = v * v * (3. - 2. * v);
     let w = w * w * (3. - 2. * w);
