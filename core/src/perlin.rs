@@ -19,12 +19,63 @@ impl Perlin {
     pub fn noise(&self, p: &Point3) -> f64 {
         // Note: 这里的 p.x 是 f64，数值有正有负，不能转为 u64，
         // 否则会丢失数据得到异常的图像
-        let i = ((4. * p.x) as i64 & 255) as usize;
-        let j = ((4. * p.y) as i64 & 255) as usize;
-        let k = ((4. * p.z) as i64 & 255) as usize;
+        let i = p.x.floor() as i64;
+        let j = p.y.floor() as i64;
+        let k = p.z.floor() as i64;
 
-        self.rand_floats[self.perm_x[i] ^ self.perm_y[j] ^ self.perm_z[k]]
+        let mut c = [[[0_f64; 2]; 2]; 2];
+
+        (0_usize..2).for_each(|di| {
+            (0_usize..2).for_each(|dj| {
+                (0_usize..2).for_each(|dk| {
+                    // Note: di, dj, dk 都不会超过 1，所以转换成 i64 是安全的
+                    let i = ((i + di as i64) & 255) as usize;
+                    let j = ((j + dj as i64) & 255) as usize;
+                    let k = ((k + dk as i64) & 255) as usize;
+
+                    c[di][dj][dk] =
+                        self.rand_floats[self.perm_x[i] ^ self.perm_y[j] ^ self.perm_z[k]];
+                });
+            });
+        });
+
+        trilinear_interp(&c, p)
+
+        // // Note: 这里的 p.x 是 f64，数值有正有负，不能转为 u64，
+        // // 否则会丢失数据得到异常的图像
+        // let i = ((4. * p.x) as i64 & 255) as usize;
+        // let j = ((4. * p.y) as i64 & 255) as usize;
+        // let k = ((4. * p.z) as i64 & 255) as usize;
+
+        // self.rand_floats[self.perm_x[i] ^ self.perm_y[j] ^ self.perm_z[k]]
     }
+}
+
+// 线性插值
+fn trilinear_interp(c: &[[[f64; 2]; 2]; 2], p: &Point3) -> f64 {
+    let u = p.x - p.x.floor();
+    let v = p.y - p.y.floor();
+    let w = p.z - p.z.floor();
+
+    c.iter()
+        .enumerate()
+        .map(|(i, ic)| {
+            ic.iter()
+                .enumerate()
+                .map(|(j, jc)| {
+                    jc.iter()
+                        .enumerate()
+                        .map(|(k, val)| {
+                            (i as f64 * u + (1. - i as f64) * (1. - u))
+                                * (j as f64 * v + (1. - j as f64) * (1. - v))
+                                * (k as f64 * w + (1. - k as f64) * (1. - w))
+                                * val
+                        })
+                        .sum::<f64>()
+                })
+                .sum::<f64>()
+        })
+        .sum::<f64>()
 }
 
 impl Default for Perlin {
