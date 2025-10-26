@@ -2,11 +2,13 @@ mod bvh;
 mod hittable_list;
 mod quad;
 mod sphere;
+mod triangle;
 
 pub use bvh::BvhNode;
 pub use hittable_list::HittableList;
 pub use quad::Quad;
 pub use sphere::Sphere;
+pub use triangle::Triangle;
 
 use std::sync::Arc;
 
@@ -26,6 +28,7 @@ pub enum HittableObject {
     Sphere(Sphere),
     BvhNode(BvhNode),
     Quad(Quad),
+    Triangle(Triangle),
 }
 
 impl HittableObject {
@@ -58,6 +61,10 @@ impl HittableObject {
     pub fn new_quad(q: Point3, u: Vec3, v: Vec3, material: MaterialType) -> Self {
         HittableObject::Quad(Quad::new(q, u, v, Arc::new(material)))
     }
+
+    pub fn new_triangle(q: Point3, u: Vec3, v: Vec3, material: MaterialType) -> Self {
+        HittableObject::Triangle(Triangle::new(q, u, v, Arc::new(material)))
+    }
 }
 
 impl Hittable for HittableObject {
@@ -67,6 +74,7 @@ impl Hittable for HittableObject {
             HittableObject::Sphere(sphere) => sphere.hit(ray, ray_t),
             HittableObject::BvhNode(node) => node.hit(ray, ray_t),
             HittableObject::Quad(quad) => quad.hit(ray, ray_t),
+            HittableObject::Triangle(triangle) => triangle.hit(ray, ray_t),
         }
     }
 
@@ -76,6 +84,7 @@ impl Hittable for HittableObject {
             HittableObject::Sphere(sphere) => sphere.bounding_box(),
             HittableObject::BvhNode(node) => node.bounding_box(),
             HittableObject::Quad(quad) => quad.bounding_box(),
+            HittableObject::Triangle(triangle) => triangle.bounding_box(),
         }
     }
 }
@@ -104,8 +113,8 @@ impl HitRecord {
     }
 
     /// Sets the parameter `uv` of the hit record.
-    pub fn set_uv(mut self, uv: UvCoord) -> Self {
-        self.uv = uv;
+    pub fn set_uv(mut self, u: f64, v: f64) -> Self {
+        self.uv = UvCoord::new(u, v);
         self
     }
 

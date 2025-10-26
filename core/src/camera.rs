@@ -25,6 +25,8 @@ pub struct Camera {
     pixel_samples_scale: f64,
     /// Maximum number of ray bounces into scene
     max_depth: u32,
+    /// Scene background color
+    background: Color,
     /// Vertical view angle (field of view)
     vfov: Degrees,
     /// Point camera is looking from
@@ -64,29 +66,6 @@ struct CameraBasis {
     w: Vec3,
 }
 
-// Return the color for a given scene ray
-fn ray_color<H: Hittable>(ray: Ray, depth: u32, world: Arc<H>) -> Color {
-    // If we've exceeded the ray bounce limit, no more light is gathered.
-    if depth == 0 {
-        return Color::zero();
-    }
-
-    if let Some(hit) = world.hit(&ray, Interval::new(0.001, f64::INFINITY))
-        && let Some(material) = &hit.material
-    {
-        if let Some((attenuation, scattered)) = material.scatter(&ray, &hit) {
-            return attenuation * ray_color(scattered, depth - 1, world.clone());
-        } else {
-            return Color::zero();
-        }
-    }
-
-    let direction = ray.direction.to_unit();
-    let a = 0.5 * (direction.y + 1.);
-
-    (1. - a) * Color::one() + a * Color::new(0.5, 0.7, 1.)
-}
-
 fn sample_square() -> Vec3 {
     // Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
     Vec3::with_xy(common::random() - 0.5, common::random() - 0.5)
@@ -98,12 +77,13 @@ impl Camera {
     /// # Example
     ///
     /// ```rust
-    /// # use ray_tracing_core::{camera::Camera, Point3, Vec3};
+    /// # use ray_tracing_core::{camera::Camera, Color, Point3, Vec3};
     /// let camera = Camera::builder()
     ///     .set_aspect_ratio(1.)
     ///     .set_image_width(100)
     ///     .set_samples_per_pixel(10)
     ///     .set_max_depth(10)
+    ///     .set_background(Color::zero())
     ///     .set_vertical_view_angle(90.)
     ///     .set_look_from(Point3::zero())
     ///     .set_look_at(Point3::new(0., 0., -1.))
@@ -120,6 +100,7 @@ impl Camera {
             samples_per_pixel: 10,
             pixel_samples_scale: 0.,
             max_depth: 10,
+            background: Color::zero(),
             vfov: Degrees(90.),
             look_from: Point3::zero(),
             look_at: Point3::with_z(-1.),
@@ -157,6 +138,11 @@ impl Camera {
     /// Set the maximum depth of the camera.
     pub fn set_max_depth(mut self, max_depth: u32) -> Self {
         self.max_depth = max_depth;
+        self
+    }
+
+    pub fn set_background(mut self, background: Color) -> Self {
+        self.background = background;
         self
     }
 
@@ -237,7 +223,7 @@ impl Camera {
                             .map(|_| {
                                 let ray = self.sample_ray(i, j);
 
-                                ray_color(ray, self.max_depth, world.clone())
+                                self.ray_color(ray, self.max_depth, world.clone())
                             })
                             .sum();
 
@@ -267,6 +253,31 @@ impl Camera {
         eprintln!("\nDone. Elapsed time: {}ms", elapsed.as_millis());
 
         Ok(())
+    }
+
+    // Return the color for a given scene ray
+    fn ray_color<H: Hittable>(&self, ray: Ray, depth: u32, world: Arc<H>) -> Color {
+        // If we've exceeded the ray bounce limit, no more light is gathered.
+        if depth == 0 {
+            return Color::zero();
+        }
+
+        // If the ray hits nothing, return the background color.
+        if let Some(hit_record) = world.hit(&ray, Interval::new(0.001, f64::INFINITY))
+            && let Some(mat) = &hit_record.material
+        {
+            let color_from_emission = mat.emitted(&hit_record.uv, &hit_record.p);
+            if let Some((attenuation, scattered)) = mat.scatter(&ray, &hit_record) {
+                let color_from_scatter =
+                    attenuation * self.ray_color(scattered, depth - 1, world.clone());
+
+                color_from_emission + color_from_scatter
+            } else {
+                color_from_emission
+            }
+        } else {
+            self.background
+        }
     }
 
     fn initialize(mut self) -> Self {

@@ -102,11 +102,12 @@ impl Hittable for Sphere {
         let t = root;
         let p = ray.at(t);
         let outward_normal = (p - current_center) / self.radius;
+        let uv = Self::get_sphere_uv(&outward_normal);
 
         let hit_record = HitRecord::builder()
             .set_t(t)
             .set_p(p)
-            .set_uv(Self::get_sphere_uv(&outward_normal))
+            .set_uv(uv.u, uv.v)
             .set_face_normal(ray, outward_normal)
             .set_material(self.material.clone());
 

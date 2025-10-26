@@ -25,7 +25,9 @@ pub mod prelude {
         BvhNode, HitRecord, Hittable, HittableList, HittableObject, Quad, Sphere,
     };
     pub use crate::interval::Interval;
-    pub use crate::material::{Dielectric, Lambertian, Material, MaterialType, Metal};
+    pub use crate::material::{
+        Dielectric, DiffuseLight, Lambertian, Material, MaterialType, Metal,
+    };
     pub use crate::perlin::Perlin;
     pub use crate::plane::PlaneFigure;
     pub use crate::ray::Ray;

@@ -25,6 +25,12 @@ pub fn quads() -> Result<(), io::Error> {
             Vec3::new(0., 4., 0.),
             back_green,
         ),
+        // HittableObject::new_triangle(
+        //     Point3::new(-2., -2., 0.),
+        //     Vec3::new(4., 0., 0.),
+        //     Vec3::new(0., 4., 0.),
+        //     back_green,
+        // ),
         HittableObject::new_quad(
             Point3::new(3., -2., 1.),
             Vec3::new(0., 0., 4.),
@@ -50,6 +56,7 @@ pub fn quads() -> Result<(), io::Error> {
         .set_image_width(400)
         .set_samples_per_pixel(100)
         .set_max_depth(50)
+        .set_background(Color::new(0.7, 0.8, 1.))
         .set_vertical_view_angle(80.)
         .set_look_from(Point3::new(0., 0., 9.))
         .set_look_at(Point3::zero())

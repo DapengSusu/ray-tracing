@@ -14,6 +14,7 @@ pub fn earth() -> Result<(), io::Error> {
         .set_image_width(400)
         .set_samples_per_pixel(100)
         .set_max_depth(50)
+        .set_background(Color::new(0.7, 0.8, 1.))
         .set_vertical_view_angle(20.)
         .set_look_from(Point3::new(0., 0., 12.))
         .set_look_at(Point3::zero())

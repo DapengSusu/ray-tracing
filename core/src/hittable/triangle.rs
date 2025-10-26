@@ -3,28 +3,18 @@ use std::sync::Arc;
 use crate::prelude::*;
 
 #[derive(Debug, Clone)]
-pub struct Quad {
-    /// Q: The starting corner.
+pub struct Triangle {
     q: Point3,
-    /// A vector representing the first side.
-    /// `Q+u` gives one of the corners adjacent to `Q`.
     u: Vec3,
-    /// A vector representing the second side.
-    /// `Q+v` gives the other corner adjacent to `Q`.
     v: Vec3,
-    /// The vector `w` is constant for a given quadrilateral.
     w: Vec3,
-    /// Material of the quad.
     material: Arc<MaterialType>,
-    /// Axis-aligned bounding box of the quad.
     bounding_box: AABB,
-    /// Normal vector
     normal: Vec3,
-    /// `D` constant
     d: f64,
 }
 
-impl Quad {
+impl Triangle {
     pub fn new(q: Point3, u: Vec3, v: Vec3, material: Arc<MaterialType>) -> Self {
         let n = vec3::cross(&u, &v);
         let normal = n.to_unit();
@@ -45,7 +35,7 @@ impl Quad {
     }
 }
 
-impl Hittable for Quad {
+impl Hittable for Triangle {
     fn hit(&self, ray: &Ray, ray_t: Interval) -> Option<HitRecord> {
         let denom = vec3::dot(&self.normal, &ray.direction);
 
@@ -60,9 +50,7 @@ impl Hittable for Quad {
             return None;
         }
 
-        // Determine if the hit point lies within the planar shape using its plane coordinates.
         let intersection = ray.at(t);
-
         let hit_record = HitRecord::builder()
             .set_t(t)
             .set_p(intersection)
@@ -73,7 +61,6 @@ impl Hittable for Quad {
         let alpha = self.w.dot(&planar_hitpt_vector.cross(&self.v));
         let beta = self.w.dot(&self.u.cross(&planar_hitpt_vector));
 
-        // Ray hits the 2D shape; set the rest of the hit record and return true.
         Self::is_interior(hit_record, alpha, beta)
     }
 
@@ -82,7 +69,7 @@ impl Hittable for Quad {
     }
 }
 
-impl PlaneFigure for Quad {
+impl PlaneFigure for Triangle {
     fn update_bounding_box(mut self, q: &Point3, u: &Point3, v: &Point3) -> Self {
         let bbox_diagonal1 = AABB::with_points(*q, *q + *u + *v);
         let bbox_diagonal2 = AABB::with_points(*q + *u, *q + *v);
@@ -94,11 +81,7 @@ impl PlaneFigure for Quad {
     }
 
     fn is_interior(hit: HitRecord, a: f64, b: f64) -> Option<HitRecord> {
-        let unit_interval = Interval::new(0., 1.);
-        // Given the hit point in plane coordinates, return false if it is outside the
-        // primitive, otherwise set the hit record UV coordinates and return true.
-
-        if !unit_interval.contains(a) || !unit_interval.contains(b) {
+        if a <= 0. || b <= 0. || a + b >= 1. {
             return None;
         }
 
