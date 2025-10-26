@@ -6,6 +6,7 @@ pub mod hittable;
 pub mod interval;
 pub mod material;
 pub mod perlin;
+pub mod plane;
 pub mod ray;
 pub mod texture;
 pub mod vec3;
@@ -26,6 +27,7 @@ pub mod prelude {
     pub use crate::interval::Interval;
     pub use crate::material::{Dielectric, Lambertian, Material, MaterialType, Metal};
     pub use crate::perlin::Perlin;
+    pub use crate::plane::PlaneFigure;
     pub use crate::ray::Ray;
     pub use crate::texture::{
         CheckerTexture, ImageTexture, NoiseTexture, SolidColor, Texture, TextureType,

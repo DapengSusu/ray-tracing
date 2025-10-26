@@ -70,6 +70,16 @@ impl AABB {
         }
     }
 
+    pub fn append(mut self, bbox: AABB) -> Self {
+        self += bbox;
+
+        self
+    }
+
+    pub fn replace(&mut self, bbox: AABB) {
+        *self = bbox;
+    }
+
     /// Returns the index of the longest axis of the bounding box.
     pub fn longest_axis(&self) -> u8 {
         let x_size = self.x.size();

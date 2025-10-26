@@ -15,6 +15,7 @@ use crate::prelude::*;
 /// Trait for objects that can be hit by rays.
 pub trait Hittable: Sync + Send {
     fn hit(&self, ray: &Ray, ray_t: Interval) -> Option<HitRecord>;
+
     fn bounding_box(&self) -> &AABB;
 }
 

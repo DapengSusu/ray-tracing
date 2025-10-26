@@ -26,7 +26,6 @@ pub struct Quad {
 
 impl Quad {
     pub fn new(q: Point3, u: Vec3, v: Vec3, material: Arc<MaterialType>) -> Self {
-        let bounding_box = new_bounding_box(&q, &u, &v);
         let n = vec3::cross(&u, &v);
         let normal = n.to_unit();
         let d = vec3::dot(&normal, &q);
@@ -38,10 +37,11 @@ impl Quad {
             v,
             w,
             material,
-            bounding_box,
+            bounding_box: AABB::default(),
             normal,
             d,
         }
+        .update_bounding_box(&q, &u, &v)
     }
 }
 
@@ -63,7 +63,7 @@ impl Hittable for Quad {
         // Determine if the hit point lies within the planar shape using its plane coordinates.
         let intersection = ray.at(t);
 
-        let mut hit_record = HitRecord::builder()
+        let hit_record = HitRecord::builder()
             .set_t(t)
             .set_p(intersection)
             .set_material(self.material.clone())
@@ -73,13 +73,8 @@ impl Hittable for Quad {
         let alpha = self.w.dot(&planar_hitpt_vector.cross(&self.v));
         let beta = self.w.dot(&self.u.cross(&planar_hitpt_vector));
 
-        if !is_interior(&mut hit_record, alpha, beta) {
-            return None;
-        }
-
         // Ray hits the 2D shape; set the rest of the hit record and return true.
-
-        Some(hit_record)
+        Self::is_interior(hit_record, alpha, beta)
     }
 
     fn bounding_box(&self) -> &AABB {
@@ -87,24 +82,26 @@ impl Hittable for Quad {
     }
 }
 
-fn is_interior(hit: &mut HitRecord, a: f64, b: f64) -> bool {
-    let unit_interval = Interval::new(0., 1.);
-    // Given the hit point in plane coordinates, return false if it is outside the
-    // primitive, otherwise set the hit record UV coordinates and return true.
+impl PlaneFigure for Quad {
+    fn update_bounding_box(mut self, q: &Point3, u: &Point3, v: &Point3) -> Self {
+        let bbox_diagonal1 = AABB::with_points(*q, *q + *u + *v);
+        let bbox_diagonal2 = AABB::with_points(*q + *u, *q + *v);
 
-    if !unit_interval.contains(a) || !unit_interval.contains(b) {
-        return false;
+        self.bounding_box
+            .replace(AABB::from_boxes(&bbox_diagonal1, &bbox_diagonal2));
+
+        self
     }
 
-    hit.uv = UvCoord::new(a, b);
+    fn is_interior(hit: HitRecord, a: f64, b: f64) -> Option<HitRecord> {
+        let unit_interval = Interval::new(0., 1.);
+        // Given the hit point in plane coordinates, return false if it is outside the
+        // primitive, otherwise set the hit record UV coordinates and return true.
 
-    true
-}
+        if !unit_interval.contains(a) || !unit_interval.contains(b) {
+            return None;
+        }
 
-// Compute the bounding box of all four vertices.
-fn new_bounding_box(q: &Point3, u: &Vec3, v: &Vec3) -> AABB {
-    let bbox_diagonal1 = AABB::with_points(*q, *q + *u + *v);
-    let bbox_diagonal2 = AABB::with_points(*q + *u, *q + *v);
-
-    AABB::from_boxes(&bbox_diagonal1, &bbox_diagonal2)
+        Some(hit.set_uv(UvCoord::new(a, b)))
+    }
 }
