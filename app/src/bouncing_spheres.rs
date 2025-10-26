@@ -21,24 +21,21 @@ fn generate_sphere_random() -> HittableList {
                 if material_random < 0.7 {
                     // diffuse
                     let albedo = Color::random() * Color::random();
-                    let material = Arc::new(Lambertian::from_color(albedo));
+                    let material = MaterialType::new_lamb_from_color(albedo);
                     let center_end = center + Vec3::with_y(common::random_range(0., 0.5));
-                    world.add(Arc::new(Sphere::new_moving(
-                        center,
-                        center_end,
-                        0.2,
-                        Some(material),
-                    )));
+                    world.add(HittableObject::new_sphere_moving(
+                        center, center_end, 0.2, material,
+                    ));
                 } else if material_random < 0.9 {
                     // metal
                     let albedo = Color::random_range(0.5, 1.);
                     let fuzz = common::random_range(0., 0.5);
-                    let material = Arc::new(Metal::new(albedo, fuzz));
-                    world.add(Arc::new(Sphere::new(center, 0.2, Some(material))));
+                    let material = MaterialType::new_metal(albedo, fuzz);
+                    world.add(HittableObject::new_sphere(center, 0.2, material));
                 } else {
                     // glass
-                    let material = Arc::new(Dielectric::new(1.5));
-                    world.add(Arc::new(Sphere::new(center, 0.2, Some(material))));
+                    let material = MaterialType::new_dielectric(1.5);
+                    world.add(HittableObject::new_sphere(center, 0.2, material));
                 }
             }
         });
@@ -53,45 +50,45 @@ pub fn bouncing_spheres() -> Result<(), io::Error> {
     // World
     let mut world = generate_sphere_random();
 
-    let checker = Arc::new(CheckerTexture::from_colors(
+    let checker = TextureType::new_checker_from_colors(
         0.32,
         Color::new(0.2, 0.3, 0.1),
         Color::with_isotropic(0.9),
+    );
+    world.add(HittableObject::new_sphere(
+        Point3::with_y(-1000.),
+        1000.,
+        MaterialType::new_lamb(checker),
     ));
-    world.add(Arc::new(Sphere::new(
+
+    let material_ground = MaterialType::new_lamb_from_color(Color::new(0.5, 0.5, 0.5));
+    world.add(HittableObject::new_sphere(
         Point3::with_y(-1000.),
         1000.,
-        Some(Arc::new(Lambertian::new(checker))),
-    )));
+        material_ground,
+    ));
 
-    let material_ground = Arc::new(Lambertian::from_color(Color::new(0.5, 0.5, 0.5)));
-    world.add(Arc::new(Sphere::new(
-        Point3::with_y(-1000.),
-        1000.,
-        Some(material_ground),
-    )));
+    let material_major_1 = MaterialType::new_dielectric(1.5);
+    let material_major_2 = MaterialType::new_lamb_from_color(Color::new(0.4, 0.2, 0.1));
+    let material_major_3 = MaterialType::new_metal(Color::new(0.7, 0.6, 0.5), 0.);
 
-    let material_major_1 = Arc::new(Dielectric::new(1.5));
-    let material_major_2 = Arc::new(Lambertian::from_color(Color::new(0.4, 0.2, 0.1)));
-    let material_major_3 = Arc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.));
-
-    world.add(Arc::new(Sphere::new(
+    world.add(HittableObject::new_sphere(
         Point3::with_y(1.),
         1.,
-        Some(material_major_1),
-    )));
-    world.add(Arc::new(Sphere::new(
+        material_major_1,
+    ));
+    world.add(HittableObject::new_sphere(
         Point3::new(-4., 1., 0.),
         1.,
-        Some(material_major_2),
-    )));
-    world.add(Arc::new(Sphere::new(
+        material_major_2,
+    ));
+    world.add(HittableObject::new_sphere(
         Point3::new(4., 1., 0.),
         1.,
-        Some(material_major_3),
-    )));
+        material_major_3,
+    ));
 
-    world = HittableList::from_hittable(Arc::new(BvhNode::from_hittable_list(world)));
+    let world = HittableObject::new_bvh_node(world);
 
     // Camera render
     Camera::builder()

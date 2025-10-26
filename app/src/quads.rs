@@ -6,43 +6,43 @@ pub fn quads() -> Result<(), io::Error> {
     eprintln!("Running Quads...");
 
     // Materials
-    let left_red = Arc::new(Lambertian::from_color(Color::new(1., 0.2, 0.2)));
-    let back_green = Arc::new(Lambertian::from_color(Color::new(0.2, 1., 0.2)));
-    let right_blue = Arc::new(Lambertian::from_color(Color::new(0.2, 0.2, 1.)));
-    let upper_orange = Arc::new(Lambertian::from_color(Color::new(1., 0.5, 0.)));
-    let lower_teal = Arc::new(Lambertian::from_color(Color::new(0.2, 0.8, 0.8)));
+    let left_red = MaterialType::new_lamb_from_color(Color::new(1., 0.2, 0.2));
+    let back_green = MaterialType::new_lamb_from_color(Color::new(0.2, 1., 0.2));
+    let right_blue = MaterialType::new_lamb_from_color(Color::new(0.2, 0.2, 1.));
+    let upper_orange = MaterialType::new_lamb_from_color(Color::new(1., 0.5, 0.));
+    let lower_teal = MaterialType::new_lamb_from_color(Color::new(0.2, 0.8, 0.8));
 
-    let world = HittableList::from_hittables(vec![
-        Arc::new(Quad::new(
+    let world = HittableObject::new_list(vec![
+        HittableObject::new_quad(
             Point3::new(-3., -2., 5.),
             Vec3::new(0., 0., -4.),
             Vec3::new(0., 4., 0.),
             left_red,
-        )),
-        Arc::new(Quad::new(
+        ),
+        HittableObject::new_quad(
             Point3::new(-2., -2., 0.),
             Vec3::new(4., 0., 0.),
             Vec3::new(0., 4., 0.),
             back_green,
-        )),
-        Arc::new(Quad::new(
+        ),
+        HittableObject::new_quad(
             Point3::new(3., -2., 1.),
             Vec3::new(0., 0., 4.),
             Vec3::new(0., 4., 0.),
             right_blue,
-        )),
-        Arc::new(Quad::new(
+        ),
+        HittableObject::new_quad(
             Point3::new(-2., 3., 1.),
             Vec3::new(4., 0., 0.),
             Vec3::new(0., 0., 4.),
             upper_orange,
-        )),
-        Arc::new(Quad::new(
+        ),
+        HittableObject::new_quad(
             Point3::new(-2., -3., 5.),
             Vec3::new(4., 0., 0.),
             Vec3::new(0., 0., -4.),
             lower_teal,
-        )),
+        ),
     ]);
 
     Camera::builder()

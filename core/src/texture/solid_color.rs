@@ -1,5 +1,6 @@
 use crate::prelude::*;
 
+#[derive(Debug, Default, Clone, Copy)]
 pub struct SolidColor {
     albedo: Color,
 }

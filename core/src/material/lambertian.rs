@@ -3,20 +3,21 @@ use std::sync::Arc;
 use crate::prelude::*;
 
 /// Lambertian material
+#[derive(Debug, Clone)]
 pub struct Lambertian {
-    texture: Arc<dyn Texture>,
+    texture: Arc<TextureType>,
 }
 
 impl Lambertian {
     /// Create a new Lambertian material with the given texture.
-    pub fn new(texture: Arc<dyn Texture>) -> Self {
+    pub fn new(texture: Arc<TextureType>) -> Self {
         Self { texture }
     }
 
     /// Create a new Lambertian material with the given albedo color.
     pub fn from_color(albedo: Color) -> Self {
         Self {
-            texture: Arc::new(SolidColor::new(albedo)),
+            texture: Arc::new(TextureType::SolidColor(SolidColor::new(albedo))),
         }
     }
 }

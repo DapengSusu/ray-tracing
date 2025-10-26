@@ -2,15 +2,16 @@ use std::sync::Arc;
 
 use crate::prelude::*;
 
+#[derive(Debug, Clone)]
 pub struct CheckerTexture {
     inv_scale: f64,
-    even: Arc<dyn Texture>,
-    odd: Arc<dyn Texture>,
+    even: Arc<TextureType>,
+    odd: Arc<TextureType>,
 }
 
 impl CheckerTexture {
     /// Create a new checker texture with the given scale and even/odd textures.
-    pub fn new(scale: f64, even: Arc<dyn Texture>, odd: Arc<dyn Texture>) -> Self {
+    pub fn new(scale: f64, even: Arc<TextureType>, odd: Arc<TextureType>) -> Self {
         Self {
             inv_scale: scale.recip(),
             even,
@@ -22,8 +23,8 @@ impl CheckerTexture {
     pub fn from_colors(scale: f64, c1: Color, c2: Color) -> Self {
         Self::new(
             scale,
-            Arc::new(SolidColor::new(c1)),
-            Arc::new(SolidColor::new(c2)),
+            Arc::new(TextureType::SolidColor(SolidColor::new(c1))),
+            Arc::new(TextureType::SolidColor(SolidColor::new(c2))),
         )
     }
 }

@@ -2,6 +2,7 @@ use crate::{Point3, Vec3, common};
 
 /// Perlin noise, it takes a 3D point as input and always returns
 /// the same randomish number. Nearby points return similar numbers.
+#[derive(Debug, Clone)]
 pub struct Perlin {
     rand_vecs: [Vec3; POINT_COUNT],
     perm_x: [usize; POINT_COUNT],

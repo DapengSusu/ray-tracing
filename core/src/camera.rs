@@ -210,7 +210,7 @@ impl Camera {
     /// # Note
     ///
     /// You should call `build()` before calling this method.
-    pub fn render<H: Hittable>(&mut self, world: Arc<H>) -> Result<(), io::Error> {
+    pub fn render(&mut self, world: Arc<HittableObject>) -> Result<(), io::Error> {
         // Writer
         let stdout = io::stdout();
         let mut writer = BufWriter::new(stdout.lock());

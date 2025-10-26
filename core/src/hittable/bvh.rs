@@ -4,10 +4,10 @@ use crate::prelude::*;
 
 /// A BVH is also going to be a hittable — just like lists of hittables.
 /// It’s really a container, but it can respond to the query “does this ray hit you?”.
-#[derive(Default)]
+#[derive(Debug, Default, Clone)]
 pub struct BvhNode {
-    left: Option<Arc<dyn Hittable>>,
-    right: Option<Arc<dyn Hittable>>,
+    left: Option<Arc<HittableObject>>,
+    right: Option<Arc<HittableObject>>,
     bounding_box: AABB,
 }
 
@@ -17,7 +17,7 @@ impl BvhNode {
         Self::from_hittables(list.objects, 0, len)
     }
 
-    pub fn from_hittables(mut objects: Vec<Arc<dyn Hittable>>, begin: usize, end: usize) -> Self {
+    pub fn from_hittables(mut objects: Vec<HittableObject>, begin: usize, end: usize) -> Self {
         let mut bvh_node = Self::default();
 
         // Build the bounding box of the span of source objects.
@@ -27,11 +27,11 @@ impl BvhNode {
 
         let object_span = end - begin;
         if object_span == 1 {
-            bvh_node.left = Some(objects[begin].clone());
-            bvh_node.right = Some(objects[begin].clone());
+            bvh_node.left = Some(Arc::new(objects[begin].clone()));
+            bvh_node.right = Some(Arc::new(objects[begin].clone()));
         } else if object_span == 2 {
-            bvh_node.left = Some(objects[begin].clone());
-            bvh_node.right = Some(objects[begin + 1].clone());
+            bvh_node.left = Some(Arc::new(objects[begin].clone()));
+            bvh_node.right = Some(Arc::new(objects[begin + 1].clone()));
         } else {
             match bvh_node.bounding_box.longest_axis() {
                 0 => objects[begin..end].sort_by(box_x_compare),
@@ -41,8 +41,8 @@ impl BvhNode {
             let mid = begin + object_span / 2;
             let left = Self::from_hittables(objects.clone(), begin, mid);
             let right = Self::from_hittables(objects.clone(), mid, end);
-            bvh_node.left = Some(Arc::new(left));
-            bvh_node.right = Some(Arc::new(right));
+            bvh_node.left = Some(Arc::new(HittableObject::BvhNode(left)));
+            bvh_node.right = Some(Arc::new(HittableObject::BvhNode(right)));
         }
 
         bvh_node
@@ -77,21 +77,21 @@ impl Hittable for BvhNode {
     }
 }
 
-fn box_compare(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>, axis: u8) -> Ordering {
+fn box_compare(a: &HittableObject, b: &HittableObject, axis: u8) -> Ordering {
     let a_axis_interval = a.bounding_box()[axis];
     let b_axis_interval = b.bounding_box()[axis];
 
     a_axis_interval.min.total_cmp(&b_axis_interval.min)
 }
 
-fn box_x_compare(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>) -> Ordering {
+fn box_x_compare(a: &HittableObject, b: &HittableObject) -> Ordering {
     box_compare(a, b, 0)
 }
 
-fn box_y_compare(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>) -> Ordering {
+fn box_y_compare(a: &HittableObject, b: &HittableObject) -> Ordering {
     box_compare(a, b, 1)
 }
 
-fn box_z_compare(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>) -> Ordering {
+fn box_z_compare(a: &HittableObject, b: &HittableObject) -> Ordering {
     box_compare(a, b, 2)
 }

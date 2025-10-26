@@ -1,16 +1,16 @@
 use crate::{Color, Point3, common::UvCoord, perlin::Perlin, texture::Texture};
 
 /// Texture that takes these floats between 0 and 1 and creates grey colors
-#[derive(Default)]
+#[derive(Debug, Default, Clone)]
 pub struct NoiseTexture {
-    noise: Perlin,
+    noise: Box<Perlin>,
     scale: f64,
 }
 
 impl NoiseTexture {
     pub fn new(scale: f64) -> Self {
         Self {
-            noise: Perlin::default(),
+            noise: Box::new(Perlin::default()),
             scale,
         }
     }

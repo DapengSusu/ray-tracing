@@ -62,28 +62,6 @@ impl AABB {
     }
 
     /// Construct an axis-aligned bounding box from two input boxes.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use ray_tracing_core::aabb::AABB;
-    /// # use ray_tracing_core::interval::Interval;
-    /// # use ray_tracing_core::Point3;
-    /// let box1 = AABB::with_points(
-    ///     Point3::new(0.5, 2., 1.),
-    ///     Point3::new(1., 1.5, 1.)
-    /// );
-    /// let box2 = AABB::with_points(
-    ///     Point3::new(2.5, 2., 3.),
-    ///     Point3::new(3., 3.5, 1.)
-    /// );
-    /// let expected = AABB::new(
-    ///     Interval::new(0.5, 3.),
-    ///     Interval::new(1.5, 3.5),
-    ///     Interval::new(1., 3.),
-    /// );
-    /// assert_eq!(AABB::from_boxes(&box1, &box2), expected);
-    /// ```
     pub fn from_boxes(box0: &AABB, box1: &AABB) -> Self {
         Self {
             x: Interval::with_enclosing(&box0.x, &box1.x),

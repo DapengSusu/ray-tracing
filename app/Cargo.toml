@@ -5,3 +5,6 @@ edition = "2024"
 
 [dependencies]
 ray_tracing_core = { path = "../core" }
+
+[[example]]
+name = "do_with_enum"

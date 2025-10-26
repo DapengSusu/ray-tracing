@@ -20,12 +20,16 @@ pub mod prelude {
     pub use crate::camera::Camera;
     pub use crate::color;
     pub use crate::common::{self, Degrees, Radians, UvCoord};
-    pub use crate::hittable::{BvhNode, HitRecord, Hittable, HittableList, Quad, Sphere};
+    pub use crate::hittable::{
+        BvhNode, HitRecord, Hittable, HittableList, HittableObject, Quad, Sphere,
+    };
     pub use crate::interval::Interval;
-    pub use crate::material::{Dielectric, Lambertian, Material, Metal};
+    pub use crate::material::{Dielectric, Lambertian, Material, MaterialType, Metal};
     pub use crate::perlin::Perlin;
     pub use crate::ray::Ray;
-    pub use crate::texture::{CheckerTexture, ImageTexture, NoiseTexture, SolidColor, Texture};
+    pub use crate::texture::{
+        CheckerTexture, ImageTexture, NoiseTexture, SolidColor, Texture, TextureType,
+    };
     pub use crate::vec3::Vec3 as Point3;
     pub use crate::vec3::Vec3 as Color;
     pub use crate::vec3::{self, Vec3, Vec3Iter};

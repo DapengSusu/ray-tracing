@@ -2,22 +2,23 @@ use std::{f64::consts::PI, sync::Arc};
 
 use crate::prelude::*;
 
+#[derive(Debug, Clone)]
 pub struct Sphere {
     center: Ray,
     radius: f64,
-    material: Option<Arc<dyn Material>>,
+    material: Arc<MaterialType>,
     bounding_box: AABB,
 }
 
 impl Sphere {
     /// Create stationary sphere
-    pub fn new(static_center: Point3, radius: f64, material: Option<Arc<dyn Material>>) -> Self {
+    pub fn new(static_center: Point3, radius: f64, material: MaterialType) -> Self {
         let rvec = Vec3::with_isotropic(radius);
 
         Sphere {
             center: Ray::new(static_center, Vec3::zero()),
             radius: radius.max(0.),
-            material,
+            material: Arc::new(material),
             bounding_box: AABB::with_points(static_center - rvec, static_center + rvec),
         }
     }
@@ -30,7 +31,7 @@ impl Sphere {
         center_original: Point3,
         center_end: Point3,
         radius: f64,
-        material: Option<Arc<dyn Material>>,
+        material: MaterialType,
     ) -> Self {
         let center = Ray::new(center_original, center_end - center_original);
         let rvec = Vec3::with_isotropic(radius);
@@ -40,7 +41,7 @@ impl Sphere {
         Sphere {
             center,
             radius: radius.max(0.),
-            material,
+            material: Arc::new(material),
             bounding_box: AABB::from_boxes(&box0, &box1),
         }
     }

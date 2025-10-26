@@ -1,7 +1,7 @@
 use crate::{prelude::*, vec3};
 
 /// Metal material
-#[derive(Default)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct Metal {
     albedo: Color,
     fuzz: f64,

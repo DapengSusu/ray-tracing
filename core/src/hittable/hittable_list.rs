@@ -1,14 +1,11 @@
-use std::{
-    ops::{Deref, DerefMut},
-    sync::Arc,
-};
+use std::ops::{Deref, DerefMut};
 
 use crate::prelude::*;
 
 /// A collection of Hittable objects.
-#[derive(Default)]
+#[derive(Debug, Default, Clone)]
 pub struct HittableList {
-    pub objects: Vec<Arc<dyn Hittable>>,
+    pub objects: Vec<HittableObject>,
     bounding_box: AABB,
 }
 
@@ -30,7 +27,7 @@ impl HittableList {
     }
 
     /// Creates a new `HittableList` containing a `Hittable` object.
-    pub fn from_hittable(hittable: Arc<dyn Hittable>) -> Self {
+    pub fn from_hittable(hittable: HittableObject) -> Self {
         let bounding_box = AABB::from_boxes(&AABB::default(), hittable.bounding_box());
 
         Self {
@@ -40,7 +37,7 @@ impl HittableList {
     }
 
     /// Creates a new `HittableList` containing multiple `Hittable` objects.
-    pub fn from_hittables(objects: Vec<Arc<dyn Hittable>>) -> Self {
+    pub fn from_hittables(objects: Vec<HittableObject>) -> Self {
         let bounding_box: AABB = objects
             .iter()
             .map(|hittable| hittable.bounding_box().to_owned())
@@ -53,7 +50,7 @@ impl HittableList {
     }
 
     /// Adds a `Hittable` object to the list.
-    pub fn add(&mut self, hittable: Arc<dyn Hittable>) {
+    pub fn add(&mut self, hittable: HittableObject) {
         self.bounding_box = AABB::from_boxes(&self.bounding_box, hittable.bounding_box());
         self.objects.push(hittable);
     }
@@ -80,7 +77,7 @@ impl Hittable for HittableList {
 }
 
 impl Deref for HittableList {
-    type Target = Vec<Arc<dyn Hittable>>;
+    type Target = Vec<HittableObject>;
 
     fn deref(&self) -> &Self::Target {
         &self.objects
@@ -103,7 +100,11 @@ mod tests {
         assert!(list.is_empty());
         assert_eq!(list.len(), 0);
 
-        list.add(Arc::new(Sphere::new(Point3::zero(), 1., None)));
+        list.add(HittableObject::Sphere(Sphere::new(
+            Point3::zero(),
+            1.,
+            MaterialType::Lambertian(Lambertian::from_color(Color::zero())),
+        )));
         assert!(!list.is_empty());
         assert_eq!(list.len(), 1);
 

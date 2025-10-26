@@ -5,9 +5,9 @@ use ray_tracing_core::prelude::*;
 pub fn earth() -> Result<(), io::Error> {
     eprintln!("Running earth...");
 
-    let earth_texture = Arc::new(ImageTexture::new("assets/earthmap.jpg"));
-    let earth_surface = Arc::new(Lambertian::new(earth_texture));
-    let globe = Arc::new(Sphere::new(Point3::zero(), 2., Some(earth_surface)));
+    let earth_texture = TextureType::new_image("assets/earthmap.jpg");
+    let earth_surface = MaterialType::new_lamb(earth_texture);
+    let globe = HittableObject::new_sphere(Point3::zero(), 2., earth_surface);
 
     Camera::builder()
         .set_aspect_ratio(16. / 9.)
@@ -21,7 +21,7 @@ pub fn earth() -> Result<(), io::Error> {
         .set_defocus_angle(0.)
         .set_focus_distance(10.)
         .build()
-        .render(globe)?;
+        .render(Arc::new(globe))?;
 
     Ok(())
 }

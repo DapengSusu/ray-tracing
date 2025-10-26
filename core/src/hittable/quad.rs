@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use crate::prelude::*;
 
+#[derive(Debug, Clone)]
 pub struct Quad {
     /// Q: The starting corner.
     q: Point3,
@@ -14,7 +15,7 @@ pub struct Quad {
     /// The vector `w` is constant for a given quadrilateral.
     w: Vec3,
     /// Material of the quad.
-    material: Arc<dyn Material>,
+    material: Arc<MaterialType>,
     /// Axis-aligned bounding box of the quad.
     bounding_box: AABB,
     /// Normal vector
@@ -24,7 +25,7 @@ pub struct Quad {
 }
 
 impl Quad {
-    pub fn new(q: Point3, u: Vec3, v: Vec3, material: Arc<dyn Material>) -> Self {
+    pub fn new(q: Point3, u: Vec3, v: Vec3, material: Arc<MaterialType>) -> Self {
         let bounding_box = new_bounding_box(&q, &u, &v);
         let n = vec3::cross(&u, &v);
         let normal = n.to_unit();
@@ -65,7 +66,7 @@ impl Hittable for Quad {
         let mut hit_record = HitRecord::builder()
             .set_t(t)
             .set_p(intersection)
-            .set_material(Some(self.material.clone()))
+            .set_material(self.material.clone())
             .set_face_normal(ray, self.normal);
 
         let planar_hitpt_vector = intersection - self.q;

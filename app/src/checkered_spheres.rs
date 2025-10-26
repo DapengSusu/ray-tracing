@@ -5,23 +5,19 @@ use ray_tracing_core::prelude::*;
 pub fn checkered_spheres() -> Result<(), io::Error> {
     eprintln!("Running checkered spheres...");
 
-    let checker = Arc::new(CheckerTexture::from_colors(
+    let checker = TextureType::new_checker_from_colors(
         0.32,
         Color::new(0.2, 0.3, 0.1),
         Color::with_isotropic(0.9),
-    ));
+    );
 
-    let world = HittableList::from_hittables(vec![
-        Arc::new(Sphere::new(
+    let world = HittableObject::new_list(vec![
+        HittableObject::new_sphere(
             Point3::with_y(-10.),
             10.,
-            Some(Arc::new(Lambertian::new(checker.clone()))),
-        )),
-        Arc::new(Sphere::new(
-            Point3::with_y(10.),
-            10.,
-            Some(Arc::new(Lambertian::new(checker))),
-        )),
+            MaterialType::new_lamb(checker.clone()),
+        ),
+        HittableObject::new_sphere(Point3::with_y(10.), 10., MaterialType::new_lamb(checker)),
     ]);
 
     Camera::builder()

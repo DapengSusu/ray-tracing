@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
 /// 电介质
+#[derive(Debug, Default, Clone, Copy)]
 pub struct Dielectric {
     // Refractive index in vacuum or air, or the ratio of the material's refractive index over
     // the refractive index of the enclosing media

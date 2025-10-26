@@ -4,7 +4,7 @@ use image::{GenericImageView, ImageReader};
 use palette::{IntoColor, LinSrgb, Srgb};
 use thiserror::Error;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct LinearPixelImage {
     /// Linear floating point pixel data
     rgb_data: Vec<f32>,

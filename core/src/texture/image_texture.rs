@@ -4,19 +4,22 @@ use crate::prelude::*;
 
 use ray_tracing_extra::mini_stb::LinearPixelImage;
 
+#[derive(Debug, Default, Clone)]
 pub struct ImageTexture {
-    image: LinearPixelImage,
+    image: Box<LinearPixelImage>,
 }
 
 impl ImageTexture {
     pub fn new<P: AsRef<Path>>(image_path: P) -> Self {
         Self {
-            image: LinearPixelImage::load(image_path.as_ref()).unwrap_or_else(|e| {
-                panic!(
-                    "Failed to load image from {}, {e}",
-                    image_path.as_ref().display()
-                )
-            }),
+            image: Box::new(
+                LinearPixelImage::load(image_path.as_ref()).unwrap_or_else(|e| {
+                    panic!(
+                        "Failed to load image from {}, {e}",
+                        image_path.as_ref().display()
+                    )
+                }),
+            ),
         }
     }
 }

@@ -5,19 +5,19 @@ use ray_tracing_core::prelude::*;
 pub fn perlin_spheres() -> Result<(), io::Error> {
     eprintln!("Running Perlin Spheres...");
 
-    let texture_perlin = Arc::new(NoiseTexture::new(4.));
+    let texture_perlin = TextureType::new_noise(4.);
 
-    let world = HittableList::from_hittables(vec![
-        Arc::new(Sphere::new(
+    let world = HittableObject::new_list(vec![
+        HittableObject::new_sphere(
             Point3::with_y(-1000.),
             1000.,
-            Some(Arc::new(Lambertian::new(texture_perlin.clone()))),
-        )),
-        Arc::new(Sphere::new(
+            MaterialType::new_lamb(texture_perlin.clone()),
+        ),
+        HittableObject::new_sphere(
             Point3::with_y(2.),
             2.,
-            Some(Arc::new(Lambertian::new(texture_perlin))),
-        )),
+            MaterialType::new_lamb(texture_perlin),
+        ),
     ]);
 
     Camera::builder()
