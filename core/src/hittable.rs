@@ -1,8 +1,9 @@
 mod bvh;
 mod hittable_list;
-mod quad;
 mod sphere;
 mod triangle;
+
+pub mod quad;
 
 pub use bvh::BvhNode;
 pub use hittable_list::HittableList;
@@ -33,7 +34,14 @@ pub enum HittableObject {
 
 impl HittableObject {
     pub fn new_list(objects: Vec<HittableObject>) -> Self {
-        HittableObject::HittableList(HittableList::from_hittables(objects))
+        Self::HittableList(HittableList::from_hittables(objects))
+    }
+
+    pub fn add(&mut self, hittable: HittableObject) {
+        match self {
+            Self::HittableList(list) => list.add(hittable),
+            _ => panic!("Unsupported 'add' operation"),
+        }
     }
 
     pub fn new_sphere(static_center: Point3, radius: f64, material: MaterialType) -> Self {

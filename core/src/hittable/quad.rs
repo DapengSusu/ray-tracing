@@ -105,3 +105,55 @@ impl PlaneFigure for Quad {
         Some(hit.set_uv(a, b))
     }
 }
+
+/// returns a box, by creating a hittable_list of six rectangles
+pub fn new_box(a: Point3, b: Point3, mat: Arc<MaterialType>) -> HittableObject {
+    // Returns the 3D box (six sides) that contains the two opposite vertices a & b.
+
+    // Construct the two opposite vertices with the minimum and maximum coordinates.
+    let min = Point3::new(a.x.min(b.x), a.y.min(b.y), a.z.min(b.z));
+    let max = Point3::new(a.x.max(b.x), a.y.max(b.y), a.z.max(b.z));
+
+    let dx = Vec3::new(max.x - min.x, 0., 0.);
+    let dy = Vec3::new(0., max.y - min.y, 0.);
+    let dz = Vec3::new(0., 0., max.z - min.z);
+
+    HittableObject::HittableList(HittableList::from_hittables(vec![
+        HittableObject::Quad(Quad::new(
+            Point3::new(min.x, min.y, max.z),
+            dx,
+            dy,
+            mat.clone(),
+        )), // front
+        HittableObject::Quad(Quad::new(
+            Point3::new(max.x, min.y, max.z),
+            -dz,
+            dy,
+            mat.clone(),
+        )), // right
+        HittableObject::Quad(Quad::new(
+            Point3::new(max.x, min.y, min.z),
+            -dx,
+            dy,
+            mat.clone(),
+        )), // back
+        HittableObject::Quad(Quad::new(
+            Point3::new(min.x, min.y, min.z),
+            dz,
+            dy,
+            mat.clone(),
+        )), // left
+        HittableObject::Quad(Quad::new(
+            Point3::new(min.x, max.y, max.z),
+            dx,
+            -dz,
+            mat.clone(),
+        )), // top
+        HittableObject::Quad(Quad::new(
+            Point3::new(min.x, min.y, min.z),
+            dx,
+            dz,
+            mat.clone(),
+        )), // bottom
+    ]))
+}

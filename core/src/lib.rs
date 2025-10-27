@@ -21,6 +21,7 @@ pub mod prelude {
     pub use crate::camera::Camera;
     pub use crate::color;
     pub use crate::common::{self, Degrees, Radians, UvCoord};
+    pub use crate::hittable::quad;
     pub use crate::hittable::{
         BvhNode, HitRecord, Hittable, HittableList, HittableObject, Quad, Sphere,
     };

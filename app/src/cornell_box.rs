@@ -45,7 +45,17 @@ pub fn cornell_box() -> Result<(), io::Error> {
             Point3::with_z(555.),
             Vec3::with_x(555.),
             Vec3::with_y(555.),
-            mat_white,
+            mat_white.clone(),
+        ),
+        quad::new_box(
+            Point3::new(130., 0., 65.),
+            Point3::new(295., 165., 230.),
+            Arc::new(mat_white.clone()),
+        ),
+        quad::new_box(
+            Point3::new(265., 0., 295.),
+            Point3::new(430., 330., 460.),
+            Arc::new(mat_white),
         ),
     ]);
 
