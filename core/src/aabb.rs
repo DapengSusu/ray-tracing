@@ -174,6 +174,42 @@ impl AddAssign for AABB {
     }
 }
 
+impl Add<Vec3> for AABB {
+    type Output = AABB;
+
+    fn add(self, rhs: Vec3) -> Self::Output {
+        AABB {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
+    }
+}
+
+impl Add<Vec3> for &AABB {
+    type Output = AABB;
+
+    fn add(self, rhs: Vec3) -> Self::Output {
+        *self + rhs
+    }
+}
+
+impl Add<AABB> for Vec3 {
+    type Output = AABB;
+
+    fn add(self, rhs: AABB) -> Self::Output {
+        rhs + self
+    }
+}
+
+impl Add<&AABB> for Vec3 {
+    type Output = AABB;
+
+    fn add(self, rhs: &AABB) -> Self::Output {
+        self + *rhs
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

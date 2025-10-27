@@ -1,3 +1,5 @@
+use std::ops::Add;
+
 /// Manage real-valued intervals with a minimum and a maximum.
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Interval {
@@ -108,6 +110,25 @@ impl Interval {
 impl Default for Interval {
     fn default() -> Self {
         EMPTY
+    }
+}
+
+impl Add<f64> for Interval {
+    type Output = Interval;
+
+    fn add(self, rhs: f64) -> Self::Output {
+        Interval {
+            min: self.min + rhs,
+            max: self.max + rhs,
+        }
+    }
+}
+
+impl Add<Interval> for f64 {
+    type Output = Interval;
+
+    fn add(self, rhs: Interval) -> Self::Output {
+        rhs + self
     }
 }
 

@@ -15,9 +15,13 @@ pub fn checkered_spheres() -> Result<(), io::Error> {
         HittableObject::new_sphere(
             Point3::with_y(-10.),
             10.,
-            MaterialType::new_lamb(checker.clone()),
+            Arc::new(MaterialType::new_lamb(checker.clone())),
         ),
-        HittableObject::new_sphere(Point3::with_y(10.), 10., MaterialType::new_lamb(checker)),
+        HittableObject::new_sphere(
+            Point3::with_y(10.),
+            10.,
+            Arc::new(MaterialType::new_lamb(checker)),
+        ),
     ]);
 
     Camera::builder()

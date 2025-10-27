@@ -23,7 +23,8 @@ pub mod prelude {
     pub use crate::common::{self, Degrees, Radians, UvCoord};
     pub use crate::hittable::quad;
     pub use crate::hittable::{
-        BvhNode, HitRecord, Hittable, HittableList, HittableObject, Quad, Sphere,
+        BvhNode, HitRecord, Hittable, HittableList, HittableObject, Quad, RotateY, Sphere,
+        Translate,
     };
     pub use crate::interval::Interval;
     pub use crate::material::{

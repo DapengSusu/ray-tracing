@@ -5,10 +5,34 @@ use ray_tracing_core::prelude::*;
 pub fn cornell_box() -> Result<(), io::Error> {
     eprintln!("Running Cornell Box...");
 
-    let mat_red = MaterialType::new_lamb_from_color(Color::new(0.65, 0.05, 0.05));
-    let mat_white = MaterialType::new_lamb_from_color(Color::new(0.73, 0.73, 0.73));
-    let mat_green = MaterialType::new_lamb_from_color(Color::new(0.12, 0.45, 0.15));
-    let difflight = MaterialType::new_diff_light_from_color(Color::new(15., 15., 15.));
+    let mat_red = Arc::new(MaterialType::new_lamb_from_color(Color::new(
+        0.65, 0.05, 0.05,
+    )));
+    let mat_white = Arc::new(MaterialType::new_lamb_from_color(Color::new(
+        0.73, 0.73, 0.73,
+    )));
+    let mat_green = Arc::new(MaterialType::new_lamb_from_color(Color::new(
+        0.12, 0.45, 0.15,
+    )));
+    let difflight = Arc::new(MaterialType::new_diff_light_from_color(Color::new(
+        15., 15., 15.,
+    )));
+
+    let box1 = quad::new_box(
+        Point3::zero(),
+        Point3::new(165., 330., 165.),
+        mat_white.clone(),
+    );
+    let box1 = Arc::new(HittableObject::new_rotate_y(Arc::new(box1), 15.));
+    let box1 = HittableObject::new_translate(box1, Vec3::new(265., 0., 295.));
+
+    let box2 = quad::new_box(
+        Point3::zero(),
+        Point3::new(165., 165., 165.),
+        mat_white.clone(),
+    );
+    let box2 = Arc::new(HittableObject::new_rotate_y(Arc::new(box2), -18.));
+    let box2 = HittableObject::new_translate(box2, Vec3::new(130., 0., 65.));
 
     let world = HittableObject::new_list(vec![
         HittableObject::new_quad(
@@ -47,16 +71,18 @@ pub fn cornell_box() -> Result<(), io::Error> {
             Vec3::with_y(555.),
             mat_white.clone(),
         ),
-        quad::new_box(
-            Point3::new(130., 0., 65.),
-            Point3::new(295., 165., 230.),
-            Arc::new(mat_white.clone()),
-        ),
-        quad::new_box(
-            Point3::new(265., 0., 295.),
-            Point3::new(430., 330., 460.),
-            Arc::new(mat_white),
-        ),
+        // quad::new_box(
+        //     Point3::new(130., 0., 65.),
+        //     Point3::new(295., 165., 230.),
+        //     mat_white.clone(),
+        // ),
+        // quad::new_box(
+        //     Point3::new(265., 0., 295.),
+        //     Point3::new(430., 330., 460.),
+        //     mat_white,
+        // ),
+        box1,
+        box2,
     ]);
 
     Camera::builder()

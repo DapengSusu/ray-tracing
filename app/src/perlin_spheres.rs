@@ -11,12 +11,12 @@ pub fn perlin_spheres() -> Result<(), io::Error> {
         HittableObject::new_sphere(
             Point3::with_y(-1000.),
             1000.,
-            MaterialType::new_lamb(texture_perlin.clone()),
+            Arc::new(MaterialType::new_lamb(texture_perlin.clone())),
         ),
         HittableObject::new_sphere(
             Point3::with_y(2.),
             2.,
-            MaterialType::new_lamb(texture_perlin),
+            Arc::new(MaterialType::new_lamb(texture_perlin)),
         ),
     ]);
 

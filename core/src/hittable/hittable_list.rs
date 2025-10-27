@@ -92,6 +92,8 @@ impl DerefMut for HittableList {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+
     use super::*;
 
     #[test]
@@ -103,7 +105,9 @@ mod tests {
         list.add(HittableObject::Sphere(Sphere::new(
             Point3::zero(),
             1.,
-            MaterialType::Lambertian(Lambertian::from_color(Color::zero())),
+            Arc::new(MaterialType::Lambertian(Lambertian::from_color(
+                Color::zero(),
+            ))),
         )));
         assert!(!list.is_empty());
         assert_eq!(list.len(), 1);

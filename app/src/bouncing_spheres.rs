@@ -30,11 +30,11 @@ fn generate_sphere_random() -> HittableList {
                     // metal
                     let albedo = Color::random_range(0.5, 1.);
                     let fuzz = common::random_range(0., 0.5);
-                    let material = MaterialType::new_metal(albedo, fuzz);
+                    let material = Arc::new(MaterialType::new_metal(albedo, fuzz));
                     world.add(HittableObject::new_sphere(center, 0.2, material));
                 } else {
                     // glass
-                    let material = MaterialType::new_dielectric(1.5);
+                    let material = Arc::new(MaterialType::new_dielectric(1.5));
                     world.add(HittableObject::new_sphere(center, 0.2, material));
                 }
             }
@@ -58,19 +58,19 @@ pub fn bouncing_spheres() -> Result<(), io::Error> {
     world.add(HittableObject::new_sphere(
         Point3::with_y(-1000.),
         1000.,
-        MaterialType::new_lamb(checker),
+        Arc::new(MaterialType::new_lamb(checker)),
     ));
 
-    let material_ground = MaterialType::new_lamb_from_color(Color::new(0.5, 0.5, 0.5));
+    let material_ground = Arc::new(MaterialType::new_lamb_from_color(Color::new(0.5, 0.5, 0.5)));
     world.add(HittableObject::new_sphere(
         Point3::with_y(-1000.),
         1000.,
         material_ground,
     ));
 
-    let material_major_1 = MaterialType::new_dielectric(1.5);
-    let material_major_2 = MaterialType::new_lamb_from_color(Color::new(0.4, 0.2, 0.1));
-    let material_major_3 = MaterialType::new_metal(Color::new(0.7, 0.6, 0.5), 0.);
+    let material_major_1 = Arc::new(MaterialType::new_dielectric(1.5));
+    let material_major_2 = Arc::new(MaterialType::new_lamb_from_color(Color::new(0.4, 0.2, 0.1)));
+    let material_major_3 = Arc::new(MaterialType::new_metal(Color::new(0.7, 0.6, 0.5), 0.));
 
     world.add(HittableObject::new_sphere(
         Point3::with_y(1.),

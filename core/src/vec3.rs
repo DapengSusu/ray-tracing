@@ -1,7 +1,7 @@
 use std::{
     fmt::Display,
     iter::Sum,
-    ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub, SubAssign},
+    ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
 use crate::common;
@@ -391,6 +391,20 @@ impl Index<u8> for Vec3 {
             0 => &self.x,
             1 => &self.y,
             2 => &self.z,
+            _ => panic!(
+                "Index out of bounds, only 0, 1, 2 are valid indices, but got {}",
+                index
+            ),
+        }
+    }
+}
+
+impl IndexMut<u8> for Vec3 {
+    fn index_mut(&mut self, index: u8) -> &mut Self::Output {
+        match index {
+            0 => &mut self.x,
+            1 => &mut self.y,
+            2 => &mut self.z,
             _ => panic!(
                 "Index out of bounds, only 0, 1, 2 are valid indices, but got {}",
                 index

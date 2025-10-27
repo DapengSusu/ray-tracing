@@ -12,13 +12,13 @@ pub struct Sphere {
 
 impl Sphere {
     /// Create stationary sphere
-    pub fn new(static_center: Point3, radius: f64, material: MaterialType) -> Self {
+    pub fn new(static_center: Point3, radius: f64, material: Arc<MaterialType>) -> Self {
         let rvec = Vec3::with_isotropic(radius);
 
         Sphere {
             center: Ray::new(static_center, Vec3::zero()),
             radius: radius.max(0.),
-            material: Arc::new(material),
+            material,
             bounding_box: AABB::with_points(static_center - rvec, static_center + rvec),
         }
     }

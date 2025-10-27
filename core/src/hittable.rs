@@ -1,6 +1,8 @@
 mod bvh;
 mod hittable_list;
+mod rotate_y;
 mod sphere;
+mod translate;
 mod triangle;
 
 pub mod quad;
@@ -8,7 +10,9 @@ pub mod quad;
 pub use bvh::BvhNode;
 pub use hittable_list::HittableList;
 pub use quad::Quad;
+pub use rotate_y::RotateY;
 pub use sphere::Sphere;
+pub use translate::Translate;
 pub use triangle::Triangle;
 
 use std::sync::Arc;
@@ -30,6 +34,8 @@ pub enum HittableObject {
     BvhNode(BvhNode),
     Quad(Quad),
     Triangle(Triangle),
+    Translate(Translate),
+    RotateY(RotateY),
 }
 
 impl HittableObject {
@@ -44,8 +50,8 @@ impl HittableObject {
         }
     }
 
-    pub fn new_sphere(static_center: Point3, radius: f64, material: MaterialType) -> Self {
-        HittableObject::Sphere(Sphere::new(static_center, radius, material))
+    pub fn new_sphere(static_center: Point3, radius: f64, material: Arc<MaterialType>) -> Self {
+        Self::Sphere(Sphere::new(static_center, radius, material))
     }
 
     pub fn new_sphere_moving(
@@ -54,7 +60,7 @@ impl HittableObject {
         radius: f64,
         material: MaterialType,
     ) -> Self {
-        HittableObject::Sphere(Sphere::new_moving(
+        Self::Sphere(Sphere::new_moving(
             center_original,
             center_end,
             radius,
@@ -63,36 +69,48 @@ impl HittableObject {
     }
 
     pub fn new_bvh_node(list: HittableList) -> Self {
-        HittableObject::BvhNode(BvhNode::from_hittable_list(list))
+        Self::BvhNode(BvhNode::from_hittable_list(list))
     }
 
-    pub fn new_quad(q: Point3, u: Vec3, v: Vec3, material: MaterialType) -> Self {
-        HittableObject::Quad(Quad::new(q, u, v, Arc::new(material)))
+    pub fn new_quad(q: Point3, u: Vec3, v: Vec3, material: Arc<MaterialType>) -> Self {
+        Self::Quad(Quad::new(q, u, v, material))
     }
 
-    pub fn new_triangle(q: Point3, u: Vec3, v: Vec3, material: MaterialType) -> Self {
-        HittableObject::Triangle(Triangle::new(q, u, v, Arc::new(material)))
+    pub fn new_triangle(q: Point3, u: Vec3, v: Vec3, material: Arc<MaterialType>) -> Self {
+        Self::Triangle(Triangle::new(q, u, v, material))
+    }
+
+    pub fn new_translate(object: Arc<HittableObject>, offset: Vec3) -> Self {
+        Self::Translate(Translate::new(object, offset))
+    }
+
+    pub fn new_rotate_y(object: Arc<HittableObject>, angle: f64) -> Self {
+        Self::RotateY(RotateY::new(object, Degrees(angle)))
     }
 }
 
 impl Hittable for HittableObject {
     fn hit(&self, ray: &Ray, ray_t: Interval) -> Option<HitRecord> {
         match self {
-            HittableObject::HittableList(list) => list.hit(ray, ray_t),
-            HittableObject::Sphere(sphere) => sphere.hit(ray, ray_t),
-            HittableObject::BvhNode(node) => node.hit(ray, ray_t),
-            HittableObject::Quad(quad) => quad.hit(ray, ray_t),
-            HittableObject::Triangle(triangle) => triangle.hit(ray, ray_t),
+            Self::HittableList(list) => list.hit(ray, ray_t),
+            Self::Sphere(sphere) => sphere.hit(ray, ray_t),
+            Self::BvhNode(node) => node.hit(ray, ray_t),
+            Self::Quad(quad) => quad.hit(ray, ray_t),
+            Self::Triangle(triangle) => triangle.hit(ray, ray_t),
+            Self::Translate(translate) => translate.hit(ray, ray_t),
+            Self::RotateY(rotate_y) => rotate_y.hit(ray, ray_t),
         }
     }
 
     fn bounding_box(&self) -> &AABB {
         match self {
-            HittableObject::HittableList(list) => list.bounding_box(),
-            HittableObject::Sphere(sphere) => sphere.bounding_box(),
-            HittableObject::BvhNode(node) => node.bounding_box(),
-            HittableObject::Quad(quad) => quad.bounding_box(),
-            HittableObject::Triangle(triangle) => triangle.bounding_box(),
+            Self::HittableList(list) => list.bounding_box(),
+            Self::Sphere(sphere) => sphere.bounding_box(),
+            Self::BvhNode(node) => node.bounding_box(),
+            Self::Quad(quad) => quad.bounding_box(),
+            Self::Triangle(triangle) => triangle.bounding_box(),
+            Self::Translate(translate) => translate.bounding_box(),
+            Self::RotateY(rotate_y) => rotate_y.bounding_box(),
         }
     }
 }
