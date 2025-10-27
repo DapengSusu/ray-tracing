@@ -42,7 +42,7 @@ pub enum HittableObject {
 }
 
 impl HittableObject {
-    pub fn new_list(objects: Vec<HittableObject>) -> Self {
+    pub fn new_hittable_list(objects: Vec<HittableObject>) -> Self {
         Self::HittableList(HittableList::from_hittables(objects))
     }
 
@@ -61,7 +61,7 @@ impl HittableObject {
         center_original: Point3,
         center_end: Point3,
         radius: f64,
-        material: MaterialType,
+        material: Arc<MaterialType>,
     ) -> Self {
         Self::Sphere(Sphere::new_moving(
             center_original,

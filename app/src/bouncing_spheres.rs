@@ -24,13 +24,16 @@ fn generate_sphere_random() -> HittableList {
                     let material = MaterialType::new_lamb_from_color(albedo);
                     let center_end = center + Vec3::with_y(common::random_range(0., 0.5));
                     world.add(HittableObject::new_sphere_moving(
-                        center, center_end, 0.2, material,
+                        center,
+                        center_end,
+                        0.2,
+                        Arc::new(material),
                     ));
                 } else if material_random < 0.9 {
                     // metal
                     let albedo = Color::random_range(0.5, 1.);
                     let fuzz = common::random_range(0., 0.5);
-                    let material = Arc::new(MaterialType::new_metal(albedo, fuzz));
+                    let material = Arc::new(MaterialType::new_metal_from_color(albedo, fuzz));
                     world.add(HittableObject::new_sphere(center, 0.2, material));
                 } else {
                     // glass
@@ -58,10 +61,10 @@ pub fn bouncing_spheres() -> Result<(), io::Error> {
     world.add(HittableObject::new_sphere(
         Point3::with_y(-1000.),
         1000.,
-        Arc::new(MaterialType::new_lamb(checker)),
+        Arc::new(MaterialType::new_lamb_with_tex(checker)),
     ));
 
-    let material_ground = Arc::new(MaterialType::new_lamb_from_color(Color::new(0.5, 0.5, 0.5)));
+    let material_ground = Arc::new(MaterialType::new_lamb_from_rgb(0.5, 0.5, 0.5));
     world.add(HittableObject::new_sphere(
         Point3::with_y(-1000.),
         1000.,
@@ -69,8 +72,8 @@ pub fn bouncing_spheres() -> Result<(), io::Error> {
     ));
 
     let material_major_1 = Arc::new(MaterialType::new_dielectric(1.5));
-    let material_major_2 = Arc::new(MaterialType::new_lamb_from_color(Color::new(0.4, 0.2, 0.1)));
-    let material_major_3 = Arc::new(MaterialType::new_metal(Color::new(0.7, 0.6, 0.5), 0.));
+    let material_major_2 = Arc::new(MaterialType::new_lamb_from_rgb(0.4, 0.2, 0.1));
+    let material_major_3 = Arc::new(MaterialType::new_metal_from_rgb(0.7, 0.6, 0.5, 0.));
 
     world.add(HittableObject::new_sphere(
         Point3::with_y(1.),

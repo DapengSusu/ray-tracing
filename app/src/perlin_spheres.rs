@@ -7,16 +7,16 @@ pub fn perlin_spheres() -> Result<(), io::Error> {
 
     let texture_perlin = TextureType::new_noise(4.);
 
-    let world = HittableObject::new_list(vec![
+    let world = HittableObject::new_hittable_list(vec![
         HittableObject::new_sphere(
             Point3::with_y(-1000.),
             1000.,
-            Arc::new(MaterialType::new_lamb(texture_perlin.clone())),
+            Arc::new(MaterialType::new_lamb_with_tex(texture_perlin.clone())),
         ),
         HittableObject::new_sphere(
             Point3::with_y(2.),
             2.,
-            Arc::new(MaterialType::new_lamb(texture_perlin)),
+            Arc::new(MaterialType::new_lamb_with_tex(texture_perlin)),
         ),
     ]);
 

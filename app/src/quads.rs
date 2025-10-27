@@ -6,13 +6,13 @@ pub fn quads() -> Result<(), io::Error> {
     eprintln!("Running Quads...");
 
     // Materials
-    let left_red = Arc::new(MaterialType::new_lamb_from_color(Color::new(1., 0.2, 0.2)));
-    let back_green = Arc::new(MaterialType::new_lamb_from_color(Color::new(0.2, 1., 0.2)));
-    let right_blue = Arc::new(MaterialType::new_lamb_from_color(Color::new(0.2, 0.2, 1.)));
-    let upper_orange = Arc::new(MaterialType::new_lamb_from_color(Color::new(1., 0.5, 0.)));
-    let lower_teal = Arc::new(MaterialType::new_lamb_from_color(Color::new(0.2, 0.8, 0.8)));
+    let left_red = Arc::new(MaterialType::new_lamb_from_rgb(1., 0.2, 0.2));
+    let back_green = Arc::new(MaterialType::new_lamb_from_rgb(0.2, 1., 0.2));
+    let right_blue = Arc::new(MaterialType::new_lamb_from_rgb(0.2, 0.2, 1.));
+    let upper_orange = Arc::new(MaterialType::new_lamb_from_rgb(1., 0.5, 0.));
+    let lower_teal = Arc::new(MaterialType::new_lamb_from_rgb(0.2, 0.8, 0.8));
 
-    let world = HittableObject::new_list(vec![
+    let world = HittableObject::new_hittable_list(vec![
         HittableObject::new_quad(
             Point3::new(-3., -2., 5.),
             Vec3::new(0., 0., -4.),

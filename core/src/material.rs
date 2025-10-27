@@ -47,7 +47,7 @@ pub enum MaterialType {
 }
 
 impl MaterialType {
-    pub fn new_lamb(texture: TextureType) -> Self {
+    pub fn new_lamb_with_tex(texture: TextureType) -> Self {
         MaterialType::Lambertian(Lambertian::new(Arc::new(texture)))
     }
 
@@ -55,8 +55,20 @@ impl MaterialType {
         MaterialType::Lambertian(Lambertian::from_color(albedo))
     }
 
-    pub fn new_metal(albedo: Color, fuzz: f64) -> Self {
+    pub fn new_lamb_from_rgb(r: f64, g: f64, b: f64) -> Self {
+        let albedo = Color::new(r, g, b);
+
+        MaterialType::new_lamb_from_color(albedo)
+    }
+
+    pub fn new_metal_from_color(albedo: Color, fuzz: f64) -> Self {
         MaterialType::Metal(Metal::new(albedo, fuzz))
+    }
+
+    pub fn new_metal_from_rgb(r: f64, g: f64, b: f64, fuzz: f64) -> Self {
+        let albedo = Color::new(r, g, b);
+
+        MaterialType::new_metal_from_color(albedo, fuzz)
     }
 
     pub fn new_dielectric(refraction_index: f64) -> Self {
@@ -69,6 +81,12 @@ impl MaterialType {
 
     pub fn new_diff_light_from_color(emit: Color) -> Self {
         MaterialType::DiffuseLight(DiffuseLight::from_color(emit))
+    }
+
+    pub fn new_diff_light_from_rgb(r: f64, g: f64, b: f64) -> Self {
+        let emit = Color::new(r, g, b);
+
+        MaterialType::new_diff_light_from_color(emit)
     }
 }
 

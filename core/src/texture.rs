@@ -26,8 +26,14 @@ pub enum TextureType {
 }
 
 impl TextureType {
-    pub fn new_solid(albedo: Color) -> Self {
+    pub fn new_solid_from_color(albedo: Color) -> Self {
         TextureType::SolidColor(SolidColor::new(albedo))
+    }
+
+    pub fn new_solid_from_rgb(r: f64, g: f64, b: f64) -> Self {
+        let albedo = Color::new(r, g, b);
+
+        TextureType::new_solid_from_color(albedo)
     }
 
     pub fn new_checker(scale: f64, even: TextureType, odd: TextureType) -> Self {

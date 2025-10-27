@@ -31,7 +31,7 @@ impl Sphere {
         center_original: Point3,
         center_end: Point3,
         radius: f64,
-        material: MaterialType,
+        material: Arc<MaterialType>,
     ) -> Self {
         let center = Ray::new(center_original, center_end - center_original);
         let rvec = Vec3::with_isotropic(radius);
@@ -41,7 +41,7 @@ impl Sphere {
         Sphere {
             center,
             radius: radius.max(0.),
-            material: Arc::new(material),
+            material,
             bounding_box: AABB::from_boxes(&box0, &box1),
         }
     }

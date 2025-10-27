@@ -6,20 +6,18 @@ pub fn simple_light() -> Result<(), io::Error> {
     eprintln!("Running Simple Light...");
 
     let pertext = TextureType::new_noise(4.);
-    let difflight = Arc::new(MaterialType::new_diff_light_from_color(Color::new(
-        4., 4., 4.,
-    )));
+    let difflight = Arc::new(MaterialType::new_diff_light_from_rgb(4., 4., 4.));
 
-    let world = HittableObject::new_list(vec![
+    let world = HittableObject::new_hittable_list(vec![
         HittableObject::new_sphere(
             Point3::with_y(-1000.),
             1000.,
-            Arc::new(MaterialType::new_lamb(pertext.clone())),
+            Arc::new(MaterialType::new_lamb_with_tex(pertext.clone())),
         ),
         HittableObject::new_sphere(
             Point3::with_y(2.),
             2.,
-            Arc::new(MaterialType::new_lamb(pertext)),
+            Arc::new(MaterialType::new_lamb_with_tex(pertext)),
         ),
         HittableObject::new_quad(
             Point3::new(3., 1., -2.),

@@ -6,7 +6,7 @@ pub fn earth() -> Result<(), io::Error> {
     eprintln!("Running earth...");
 
     let earth_texture = TextureType::new_image("assets/earthmap.jpg");
-    let earth_surface = Arc::new(MaterialType::new_lamb(earth_texture));
+    let earth_surface = Arc::new(MaterialType::new_lamb_with_tex(earth_texture));
     let globe = HittableObject::new_sphere(Point3::zero(), 2., earth_surface);
 
     Camera::builder()

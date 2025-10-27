@@ -11,16 +11,16 @@ pub fn checkered_spheres() -> Result<(), io::Error> {
         Color::with_isotropic(0.9),
     );
 
-    let world = HittableObject::new_list(vec![
+    let world = HittableObject::new_hittable_list(vec![
         HittableObject::new_sphere(
             Point3::with_y(-10.),
             10.,
-            Arc::new(MaterialType::new_lamb(checker.clone())),
+            Arc::new(MaterialType::new_lamb_with_tex(checker.clone())),
         ),
         HittableObject::new_sphere(
             Point3::with_y(10.),
             10.,
-            Arc::new(MaterialType::new_lamb(checker)),
+            Arc::new(MaterialType::new_lamb_with_tex(checker)),
         ),
     ]);
 

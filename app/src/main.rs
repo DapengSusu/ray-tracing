@@ -5,13 +5,14 @@ mod checkered_spheres;
 mod cornell_box;
 mod cornell_smoke;
 mod earth;
+mod final_scene;
 mod perlin_spheres;
 mod quads;
 mod simple_light;
 
 fn main() -> Result<(), io::Error> {
     let arg = env::args().nth(1).unwrap_or_default();
-    let idx = arg.parse::<i32>().unwrap_or(1);
+    let idx = arg.parse::<i32>().unwrap_or(20);
 
     match idx {
         1 => bouncing_spheres::bouncing_spheres(),
@@ -22,6 +23,8 @@ fn main() -> Result<(), io::Error> {
         6 => simple_light::simple_light(),
         7 => cornell_box::cornell_box(),
         8 => cornell_smoke::cornell_smoke(),
+        9 => final_scene::final_scene(800, 10000, 40),
+        10 => final_scene::final_scene(400, 250, 4),
         _ => Err(io::Error::other("oh no!")),
     }
 }
