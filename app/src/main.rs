@@ -3,6 +3,7 @@ use std::{env, io};
 mod bouncing_spheres;
 mod checkered_spheres;
 mod cornell_box;
+mod cornell_smoke;
 mod earth;
 mod perlin_spheres;
 mod quads;
@@ -20,6 +21,7 @@ fn main() -> Result<(), io::Error> {
         5 => quads::quads(),
         6 => simple_light::simple_light(),
         7 => cornell_box::cornell_box(),
+        8 => cornell_smoke::cornell_smoke(),
         _ => Err(io::Error::other("oh no!")),
     }
 }

@@ -28,7 +28,7 @@ pub mod prelude {
     };
     pub use crate::interval::Interval;
     pub use crate::material::{
-        Dielectric, DiffuseLight, Lambertian, Material, MaterialType, Metal,
+        Dielectric, DiffuseLight, Isotropic, Lambertian, Material, MaterialType, Metal,
     };
     pub use crate::perlin::Perlin;
     pub use crate::plane::PlaneFigure;

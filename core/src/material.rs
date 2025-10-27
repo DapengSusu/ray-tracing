@@ -1,5 +1,6 @@
 mod dielectric;
 mod diffuse_light;
+mod isotropic;
 mod lambertian;
 mod metal;
 
@@ -7,6 +8,7 @@ use std::sync::Arc;
 
 pub use dielectric::Dielectric;
 pub use diffuse_light::DiffuseLight;
+pub use isotropic::Isotropic;
 pub use lambertian::Lambertian;
 pub use metal::Metal;
 
@@ -41,6 +43,7 @@ pub enum MaterialType {
     Metal(Metal),
     Dielectric(Dielectric),
     DiffuseLight(DiffuseLight),
+    Isotropic(Isotropic),
 }
 
 impl MaterialType {
@@ -76,6 +79,7 @@ impl Material for MaterialType {
             Self::Metal(metal) => metal.scatter(ray_in, hit),
             Self::Dielectric(dielectric) => dielectric.scatter(ray_in, hit),
             Self::DiffuseLight(diffuse_light) => diffuse_light.scatter(ray_in, hit),
+            Self::Isotropic(isotropic) => isotropic.scatter(ray_in, hit),
         }
     }
 
@@ -85,6 +89,7 @@ impl Material for MaterialType {
             Self::Metal(metal) => metal.emitted(uv, p),
             Self::Dielectric(dielectric) => dielectric.emitted(uv, p),
             Self::DiffuseLight(diffuse_light) => diffuse_light.emitted(uv, p),
+            Self::Isotropic(isotropic) => isotropic.emitted(uv, p),
         }
     }
 }

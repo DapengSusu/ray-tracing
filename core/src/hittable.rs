@@ -1,4 +1,5 @@
 mod bvh;
+mod constant_medium;
 mod hittable_list;
 mod rotate_y;
 mod sphere;
@@ -8,6 +9,7 @@ mod triangle;
 pub mod quad;
 
 pub use bvh::BvhNode;
+pub use constant_medium::ConstantMedium;
 pub use hittable_list::HittableList;
 pub use quad::Quad;
 pub use rotate_y::RotateY;
@@ -36,6 +38,7 @@ pub enum HittableObject {
     Triangle(Triangle),
     Translate(Translate),
     RotateY(RotateY),
+    ConstantMedium(ConstantMedium),
 }
 
 impl HittableObject {
@@ -87,6 +90,22 @@ impl HittableObject {
     pub fn new_rotate_y(object: Arc<HittableObject>, angle: f64) -> Self {
         Self::RotateY(RotateY::new(object, Degrees(angle)))
     }
+
+    pub fn new_cons_mid_with_tex(
+        boundary: Arc<HittableObject>,
+        density: f64,
+        tex: Arc<TextureType>,
+    ) -> Self {
+        Self::ConstantMedium(ConstantMedium::with_texture(boundary, density, tex))
+    }
+
+    pub fn new_cons_mid_with_color(
+        boundary: Arc<HittableObject>,
+        density: f64,
+        albedo: Color,
+    ) -> Self {
+        Self::ConstantMedium(ConstantMedium::with_color(boundary, density, albedo))
+    }
 }
 
 impl Hittable for HittableObject {
@@ -99,6 +118,7 @@ impl Hittable for HittableObject {
             Self::Triangle(triangle) => triangle.hit(ray, ray_t),
             Self::Translate(translate) => translate.hit(ray, ray_t),
             Self::RotateY(rotate_y) => rotate_y.hit(ray, ray_t),
+            Self::ConstantMedium(cons_medium) => cons_medium.hit(ray, ray_t),
         }
     }
 
@@ -111,6 +131,7 @@ impl Hittable for HittableObject {
             Self::Triangle(triangle) => triangle.bounding_box(),
             Self::Translate(translate) => translate.bounding_box(),
             Self::RotateY(rotate_y) => rotate_y.bounding_box(),
+            Self::ConstantMedium(cons_medium) => cons_medium.bounding_box(),
         }
     }
 }
