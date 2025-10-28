@@ -1,20 +1,38 @@
 use std::{
     fmt::Display,
     iter::Sum,
-    ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub, SubAssign},
+    ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
-use crate::common;
-
-/// Vector with three components.
+/// 带有三个分量的向量
 #[derive(Debug, Default, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Vec3 {
-    /// X component.
+    /// X 分量.
     pub x: f64,
-    /// Y component.
+    /// Y 分量.
     pub y: f64,
-    /// Z component.
+    /// Z 分量.
     pub z: f64,
+}
+
+impl Vec3 {
+    pub const ZERO: Vec3 = Vec3 {
+        x: 0.,
+        y: 0.,
+        z: 0.,
+    };
+
+    pub const ONE: Vec3 = Vec3 {
+        x: 1.,
+        y: 1.,
+        z: 1.,
+    };
+
+    pub const UP: Vec3 = Vec3 {
+        x: 0.,
+        y: 1.,
+        z: 0.,
+    };
 }
 
 impl Vec3 {
@@ -23,120 +41,7 @@ impl Vec3 {
         Self { x, y, z }
     }
 
-    /// Creates a new vector with all components set to zero.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use ray_tracing_core::Vec3;
-    /// let v = Vec3::zero();
-    /// assert_eq!(v, Vec3::new(0., 0., 0.));
-    /// ```
-    pub fn zero() -> Self {
-        Self::new(0., 0., 0.)
-    }
-
-    /// Creates a new vector with all components set to one.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use ray_tracing_core::Vec3;
-    /// let v = Vec3::one();
-    /// assert_eq!(v, Vec3::new(1., 1., 1.));
-    /// ```
-    pub fn one() -> Self {
-        Self::new(1., 1., 1.)
-    }
-
-    /// Creates a new vector with randoms value between 0 and 1.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use ray_tracing_core::Vec3;
-    /// let v = Vec3::random();
-    /// assert!(v.x >= 0. && v.x < 1.);
-    /// assert!(v.y >= 0. && v.y < 1.);
-    /// assert!(v.z >= 0. && v.z < 1.);
-    /// ```
-    pub fn random() -> Self {
-        Self::new(common::random(), common::random(), common::random())
-    }
-
-    /// Creates a new vector with random values between the given minimum and maximum values.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use ray_tracing_core::Vec3;
-    /// let v = Vec3::random_range(-1., 1.);
-    /// assert!(v.x >= -1. && v.x < 1.);
-    /// assert!(v.y >= -1. && v.y < 1.);
-    /// assert!(v.z >= -1. && v.z < 1.);
-    /// ```
-    pub fn random_range(min: f64, max: f64) -> Self {
-        Self::new(
-            common::random_range(min, max),
-            common::random_range(min, max),
-            common::random_range(min, max),
-        )
-    }
-
-    /// generate the random vector inside the unit sphere (that is, a sphere of radius 1).
-    /// Pick a random point inside the cube enclosing the unit sphere. If this point
-    /// lies outside the unit sphere, then generate a new one until we find one that
-    /// lies inside or on the unit sphere.
-    pub fn random_unit_vector() -> Self {
-        loop {
-            let p = Self::random_range(-1., 1.);
-            let lensq = p.length_squared();
-
-            if f64::EPSILON < lensq && lensq < 1. {
-                return p / lensq.sqrt();
-            }
-        }
-    }
-
-    /// Like `random_unit_vector()` but only for two dimensions.
-    pub fn random_in_unit_disk() -> Self {
-        loop {
-            let p = Vec3::with_xy(common::random(), common::random());
-
-            if p.length_squared() < 1. {
-                return p;
-            }
-        }
-    }
-
-    /// Take the dot product of the surface normal and our random vector to determine
-    /// if it's in the correct hemisphere. If the dot product is positive, then the vector
-    /// is in the correct hemisphere. If the dot product is negative,
-    /// then we need to invert the vector.
-    pub fn random_on_hemisphere(normal: &Vec3) -> Self {
-        let on_unit_sphere = Self::random_unit_vector();
-
-        if on_unit_sphere.dot(normal) > 0. {
-            // In the same hemisphere as the normal
-            on_unit_sphere
-        } else {
-            -on_unit_sphere
-        }
-    }
-
-    /// Return true if the vector is close to zero in all dimensions.
-    pub fn near_zero(&self) -> bool {
-        self.near_zero_by(Some(1e-8))
-    }
-
-    /// Return true if the vector is close to zero in all dimensions.
-    pub fn near_zero_by(&self, epsilon: Option<f64>) -> bool {
-        let epsilon = epsilon.unwrap_or(1e-8).max(1e-12);
-
-        self.x.abs() < epsilon && self.y.abs() < epsilon && self.z.abs() < epsilon
-    }
-
-    /// Creates a new vector with all components set to the given value.
+    /// Creates a new vector with all components set to the same value.
     ///
     /// # Examples
     ///
@@ -149,82 +54,33 @@ impl Vec3 {
         Self::new(value, value, value)
     }
 
-    /// Creates a new vector with the given x component and y and z components set to zero.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use ray_tracing_core::Vec3;
-    /// let v = Vec3::with_x(2.);
-    /// assert_eq!(v, Vec3::new(2., 0., 0.));
-    /// ```
-    pub fn with_x(x: f64) -> Self {
-        Self::new(x, 0., 0.)
+    pub fn set_x(mut self, x: f64) -> Self {
+        self.x = x;
+        self
     }
 
-    /// Creates a new vector with the given y component and x and z components set to zero.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use ray_tracing_core::Vec3;
-    /// let v = Vec3::with_y(2.);
-    /// assert_eq!(v, Vec3::new(0., 2., 0.));
-    /// ```
-    pub fn with_y(y: f64) -> Self {
-        Self::new(0., y, 0.)
+    pub fn set_y(mut self, y: f64) -> Self {
+        self.y = y;
+        self
     }
 
-    /// Creates a new vector with the given z component and x and y components set to zero.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use ray_tracing_core::Vec3;
-    /// let v = Vec3::with_z(2.);
-    /// assert_eq!(v, Vec3::new(0., 0., 2.));
-    /// ```
-    pub fn with_z(z: f64) -> Self {
-        Self::new(0., 0., z)
+    pub fn set_z(mut self, z: f64) -> Self {
+        self.z = z;
+        self
+    }
+}
+
+impl Vec3 {
+    /// Return true if the vector is close to zero in all dimensions.
+    pub fn near_zero(&self) -> bool {
+        self.near_zero_by(Some(1e-8))
     }
 
-    /// Creates a new vector with the given x and y components and z component set to zero.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use ray_tracing_core::Vec3;
-    /// let v = Vec3::with_xy(2., 3.);
-    /// assert_eq!(v, Vec3::new(2., 3., 0.));
-    /// ```
-    pub fn with_xy(x: f64, y: f64) -> Self {
-        Self::new(x, y, 0.)
-    }
+    /// Return true if the vector is close to zero in all dimensions.
+    pub fn near_zero_by(&self, epsilon: Option<f64>) -> bool {
+        let epsilon = epsilon.unwrap_or(1e-8).max(1e-12);
 
-    /// Creates a new vector with the given x and z components and y component set to zero.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use ray_tracing_core::Vec3;
-    /// let v = Vec3::with_xz(2., 3.);
-    /// assert_eq!(v, Vec3::new(2., 0., 3.));
-    /// ```
-    pub fn with_xz(x: f64, z: f64) -> Self {
-        Self::new(x, 0., z)
-    }
-
-    /// Creates a new vector with the given y and z components and x component set to zero.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use ray_tracing_core::Vec3;
-    /// let v = Vec3::with_yz(2., 3.);
-    /// assert_eq!(v, Vec3::new(0., 2., 3.));
-    /// ```
-    pub fn with_yz(y: f64, z: f64) -> Self {
-        Self::new(0., y, z)
+        self.x.abs() < epsilon && self.y.abs() < epsilon && self.z.abs() < epsilon
     }
 
     /// Returns an iterator over the components of the vector.
@@ -386,17 +242,25 @@ impl Index<u8> for Vec3 {
             0 => &self.x,
             1 => &self.y,
             2 => &self.z,
-            _ => panic!(
-                "Index out of bounds, only 0, 1, 2 are valid indices, but got {}",
-                index
-            ),
+            _ => panic!("Index out of bounds, got {index}"),
+        }
+    }
+}
+
+impl IndexMut<u8> for Vec3 {
+    fn index_mut(&mut self, index: u8) -> &mut Self::Output {
+        match index {
+            0 => &mut self.x,
+            1 => &mut self.y,
+            2 => &mut self.z,
+            _ => panic!("Index out of bounds, got {index}"),
         }
     }
 }
 
 impl Sum for Vec3 {
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
-        iter.fold(Vec3::zero(), |acc, v| acc + v)
+        iter.fold(Vec3::ZERO, |acc, v| acc + v)
     }
 }
 
@@ -469,11 +333,11 @@ impl Mul for Vec3 {
 impl Mul<f64> for Vec3 {
     type Output = Self;
 
-    fn mul(self, scalar: f64) -> Self::Output {
+    fn mul(self, rhs: f64) -> Self::Output {
         Self {
-            x: self.x * scalar,
-            y: self.y * scalar,
-            z: self.z * scalar,
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
         }
     }
 }
@@ -484,24 +348,6 @@ impl Mul<Vec3> for f64 {
 
     fn mul(self, rhs: Vec3) -> Self::Output {
         rhs * self
-    }
-}
-
-// v * scalar
-impl Mul<u32> for Vec3 {
-    type Output = Self;
-
-    fn mul(self, scalar: u32) -> Self::Output {
-        self * scalar as f64
-    }
-}
-
-// scalar * v
-impl Mul<Vec3> for u32 {
-    type Output = Vec3;
-
-    fn mul(self, rhs: Vec3) -> Self::Output {
-        rhs * self as f64
     }
 }
 
@@ -522,93 +368,50 @@ impl Div for Vec3 {
 impl Div<f64> for Vec3 {
     type Output = Self;
 
-    fn div(self, scalar: f64) -> Self::Output {
-        self * (1. / scalar)
-    }
-}
-
-// v / scalar
-impl Div<u32> for Vec3 {
-    type Output = Self;
-
-    fn div(self, scalar: u32) -> Self::Output {
-        self / scalar as f64
+    fn div(self, rhs: f64) -> Self::Output {
+        self * (1. / rhs)
     }
 }
 
 // v1 += v2
 impl AddAssign for Vec3 {
     fn add_assign(&mut self, rhs: Self) {
-        *self = Self {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-            z: self.z + rhs.z,
-        };
+        *self = *self + rhs;
     }
 }
 
 // v1 -= v2
 impl SubAssign for Vec3 {
     fn sub_assign(&mut self, rhs: Self) {
-        *self = Self {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-            z: self.z - rhs.z,
-        };
+        *self = *self - rhs;
     }
 }
 
 // v1 *= v2
 impl MulAssign for Vec3 {
     fn mul_assign(&mut self, rhs: Self) {
-        *self = Self {
-            x: self.x * rhs.x,
-            y: self.y * rhs.y,
-            z: self.z * rhs.z,
-        };
+        *self = *self * rhs;
     }
 }
 
 // v *= scalar
 impl MulAssign<f64> for Vec3 {
-    fn mul_assign(&mut self, scalar: f64) {
-        *self = Self {
-            x: self.x * scalar,
-            y: self.y * scalar,
-            z: self.z * scalar,
-        };
-    }
-}
-
-// v *= scalar
-impl MulAssign<u32> for Vec3 {
-    fn mul_assign(&mut self, scalar: u32) {
-        *self *= scalar as f64;
+    fn mul_assign(&mut self, rhs: f64) {
+        *self = *self * rhs;
     }
 }
 
 // v1 /= v2
 impl DivAssign for Vec3 {
     fn div_assign(&mut self, rhs: Self) {
-        *self = Self {
-            x: self.x / rhs.x,
-            y: self.y / rhs.y,
-            z: self.z / rhs.z,
-        };
+        *self = *self / rhs;
     }
 }
 
 // v /= scalar
 impl DivAssign<f64> for Vec3 {
-    fn div_assign(&mut self, scalar: f64) {
-        *self *= 1. / scalar;
-    }
-}
-
-// v /= scalar
-impl DivAssign<u32> for Vec3 {
-    fn div_assign(&mut self, scalar: u32) {
-        *self /= scalar as f64;
+    fn div_assign(&mut self, rhs: f64) {
+        *self *= 1. / rhs;
     }
 }
 
@@ -717,5 +520,15 @@ mod tests {
         assert_eq!(v[0], 1.);
         assert_eq!(v[1], 2.);
         assert_eq!(v[2], 3.);
+    }
+
+    #[test]
+    fn vec3_index_mut_should_work() {
+        let mut v = Vec3::new(1., 2., 3.);
+
+        v[0] = 0.5;
+        v[1] = 2.5;
+
+        assert_eq!(v, Vec3::new(0.5, 2.5, 3.));
     }
 }

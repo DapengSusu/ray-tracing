@@ -5,3 +5,4 @@ edition = "2024"
 
 [dependencies]
 ray_tracing_core = { path = "../core" }
+rayon = { workspace = true }

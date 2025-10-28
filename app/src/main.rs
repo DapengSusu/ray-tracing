@@ -1,91 +1,70 @@
 use std::{
-    io::{self},
-    sync::Arc,
+    io::{self, BufWriter, Write},
+    sync::atomic::{AtomicU32, Ordering},
+    time::Instant,
 };
 
-use ray_tracing_core::prelude::*;
+// use ray_tracing_core::prelude::*;
 
-fn generate_sphere_random() -> HittableList {
-    let mut world = HittableList::new();
-
-    (-10..11).for_each(|i| {
-        (-10..11).for_each(|j| {
-            let material_random = common::random();
-            let center = Point3::new(
-                j as f64 + 0.9 * common::random(),
-                0.2,
-                i as f64 + 0.9 * common::random(),
-            );
-
-            if (center - Point3::new(4., 0.2, 0.)).length() > 0.9 {
-                if material_random < 0.7 {
-                    // diffuse
-                    let albedo = Color::random() * Color::random();
-                    let material = Arc::new(Lambertian::new(albedo));
-                    world.add(Arc::new(Sphere::new(center, 0.2, Some(material))));
-                } else if material_random < 0.9 {
-                    // metal
-                    let albedo = Color::random_range(0.5, 1.);
-                    let fuzz = common::random_range(0., 0.5);
-                    let material = Arc::new(Metal::new(albedo, fuzz));
-                    world.add(Arc::new(Sphere::new(center, 0.2, Some(material))));
-                } else {
-                    // glass
-                    let material = Arc::new(Dielectric::new(1.5));
-                    world.add(Arc::new(Sphere::new(center, 0.2, Some(material))));
-                }
-            }
-        });
-    });
-
-    world
-}
+use rayon::prelude::*;
 
 fn main() -> Result<(), io::Error> {
-    // World
-    let mut world = generate_sphere_random();
+    let image_width = 256_u32;
+    let image_height = 256_u32;
 
-    let material_ground = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
-    world.add(Arc::new(Sphere::new(
-        Point3::with_y(-1000.),
-        1000.,
-        Some(material_ground),
-    )));
+    // Writer
+    let stdout = io::stdout();
+    let mut writer = BufWriter::new(stdout.lock());
 
-    let material_major_1 = Arc::new(Dielectric::new(1.5));
-    let material_major_2 = Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)));
-    let material_major_3 = Arc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.));
+    // Remaining lines
+    let remaining_lines = AtomicU32::new(image_height);
 
-    world.add(Arc::new(Sphere::new(
-        Point3::with_y(1.),
-        1.,
-        Some(material_major_1),
-    )));
-    world.add(Arc::new(Sphere::new(
-        Point3::new(-4., 1., 0.),
-        1.,
-        Some(material_major_2),
-    )));
-    world.add(Arc::new(Sphere::new(
-        Point3::new(4., 1., 0.),
-        1.,
-        Some(material_major_3),
-    )));
+    // Start timer
+    let now = Instant::now();
 
-    // Camera render
-    Camera::builder()
-        .set_aspect_ratio(16. / 9.)
-        .set_image_width(1200)
-        .set_samples_per_pixel(500)
-        .set_max_depth(50)
-        .set_vertical_view_angle(20.)
-        .set_look_from(Point3::new(13., 2., 3.))
-        .set_look_at(Point3::zero())
-        .set_vup(Vec3::with_y(1.))
-        .set_defocus_angle(0.6)
-        .set_focus_distance(10.)
-        .build()
-        .render(Arc::new(world))?;
+    // Render
+    writer.write_all(b"P3\n")?;
+    writer.write_all(format!("{} {}\n", image_width, image_height).as_bytes())?;
+    writer.write_all(b"255\n")?;
+
+    let rows = (0..image_height)
+        .into_par_iter() // rayon parallelize
+        .map(|j| {
+            let row = (0..image_width)
+                .into_par_iter() // rayon parallelize
+                .map(|i| {
+                    let r = i as f64 / (image_width - 1) as f64;
+                    let g = j as f64 / (image_height - 1) as f64;
+                    let b = 0.;
+
+                    (
+                        (255.999 * r) as u16,
+                        (255.999 * g) as u16,
+                        (255.999 * b) as u16,
+                    )
+                })
+                .collect::<Vec<_>>();
+
+            let remaining = remaining_lines.fetch_sub(1, Ordering::Relaxed);
+            eprint!("\r\x1B[KScanlines remaining: {}", remaining - 1);
+
+            let mut row_bytes = Vec::with_capacity(row.len() * 9);
+            for (r, g, b) in &row {
+                row_bytes.extend_from_slice(format!("{r} {g} {b}\n").as_bytes());
+            }
+
+            row_bytes
+        })
+        .collect::<Vec<_>>();
+
+    for row in &rows {
+        writer.write_all(row)?;
+    }
+
+    // End timer
+    eprint!("\r\x1B[K");
+    let elapsed = now.elapsed();
+    eprintln!("\nDone. Elapsed time: {}ms", elapsed.as_millis());
 
     Ok(())
 }
