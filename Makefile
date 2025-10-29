@@ -16,7 +16,7 @@ test:
 # 运行项目
 run:
 	cargo run --release -q > images/output.ppm
-	cargo run --release -q --example exam1
+# cargo run --release -q
 
 # 清理项目
 clean:

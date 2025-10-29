@@ -59,7 +59,6 @@ impl PnmImage {
             .into_par_iter() // rayon parallelize
             .flat_map(|j| {
                 let row = (0..self.header.width)
-                    // .into_par_iter() // rayon parallelize
                     .map(|i| processor.process_pixel(i, j))
                     .collect::<Vec<_>>();
 
@@ -97,13 +96,13 @@ impl PnmImage {
     /// 将图像数据写入到标准输出中。
     /// 写入之前必须先调用 `self.generate(...)` 生成数据。
     pub fn write_to_stdout(&self) -> Result<(), io::Error> {
-        self.write_to(io::stdout().lock())
+        self.write_to(&mut io::stdout().lock())
     }
 
     /// 将图像数据写入到指定文件中，文件不存在则创建，存在则截断。
     /// 写入之前必须先调用 `self.generate(...)` 生成数据。
     pub fn write_to_file<P: AsRef<Path>>(&self, filename: P) -> Result<(), io::Error> {
-        self.write_to(File::create(filename)?)
+        self.write_to(&mut File::create(filename)?)
     }
 
     /// 将图像数据写入到指定 buffer 中，如 File，stdout 等。
@@ -112,7 +111,7 @@ impl PnmImage {
     /// # Panics
     ///
     /// 图像像素总数（width*height）和 `data.len()` 不相等会导致 panic
-    pub fn write_to<W: Write>(&self, w: W) -> Result<(), io::Error> {
+    pub fn write_to<W: Write>(&self, w: &mut W) -> Result<(), io::Error> {
         let pixel_count = self.header.pixel_count();
         if pixel_count as usize != self.data.len() {
             panic!(
@@ -188,9 +187,9 @@ impl From<PnmHeader> for Vec<u8> {
     fn from(header: PnmHeader) -> Self {
         let mut header_bytes = Vec::with_capacity(12);
 
-        header_bytes.copy_from_slice(header.magic.as_bytes());
-        header_bytes.copy_from_slice(&header.width.to_be_bytes());
-        header_bytes.copy_from_slice(&header.height.to_be_bytes());
+        header_bytes.extend(header.magic.as_bytes());
+        header_bytes.extend(&header.width.to_be_bytes());
+        header_bytes.extend(&header.height.to_be_bytes());
 
         if let Some(max_color) = header.max_color {
             header_bytes.push(max_color);
@@ -253,7 +252,7 @@ impl Display for PnmFormat {
     }
 }
 
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct Rgb {
     pub r: u8,
     pub g: u8,
