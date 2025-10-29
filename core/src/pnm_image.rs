@@ -78,9 +78,7 @@ impl PnmImage {
         let elapsed = now.elapsed();
         eprintln!("\nDone. Elapsed time: {}ms", elapsed.as_millis());
     }
-}
 
-impl PnmImage {
     /// 为存放像素数据提前分配空间，最终空间大于等于 data.len() + additional，
     /// 如果容量已经足够，则什么都不做。
     ///
@@ -96,13 +94,25 @@ impl PnmImage {
         self.data.extend(pixels.iter());
     }
 
+    /// 将图像数据写入到标准输出中。
+    /// 写入之前必须先调用 `self.generate(...)` 生成数据。
+    pub fn write_to_stdout(&self) -> Result<(), io::Error> {
+        self.write_to(io::stdout().lock())
+    }
+
     /// 将图像数据写入到指定文件中，文件不存在则创建，存在则截断。
-    /// 写文件之前必须先调用 `self.generate(...)` 生成数据。
+    /// 写入之前必须先调用 `self.generate(...)` 生成数据。
+    pub fn write_to_file<P: AsRef<Path>>(&self, filename: P) -> Result<(), io::Error> {
+        self.write_to(File::create(filename)?)
+    }
+
+    /// 将图像数据写入到指定 buffer 中，如 File，stdout 等。
+    /// 写入之前必须先调用 `self.generate(...)` 生成数据。
     ///
     /// # Panics
     ///
     /// 图像像素总数（width*height）和 `data.len()` 不相等会导致 panic
-    pub fn write_to_file<P: AsRef<Path>>(&self, filename: P) -> Result<(), io::Error> {
+    pub fn write_to<W: Write>(&self, w: W) -> Result<(), io::Error> {
         let pixel_count = self.header.pixel_count();
         if pixel_count as usize != self.data.len() {
             panic!(
@@ -114,10 +124,7 @@ impl PnmImage {
             );
         }
 
-        let file = File::create(filename)?;
-        let mut writer = BufWriter::new(file);
-
-        write!(writer, "{}", self)
+        write!(BufWriter::new(w), "{}", self)
     }
 
     pub fn image_width(&self) -> u32 {

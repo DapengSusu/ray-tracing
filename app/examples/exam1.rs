@@ -44,7 +44,7 @@ fn main() -> Result<(), io::Error> {
     let mut ppm = PnmImage::new_ppm_ascii();
 
     ppm.generate(processor);
-    ppm.write_to_file("images/out.ppm")?;
+    ppm.write_to_file("images/exam1-out.ppm")?;
 
     Ok(())
 }
