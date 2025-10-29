@@ -4,8 +4,7 @@ use std::{
     time::Instant,
 };
 
-// use ray_tracing_core::prelude::*;
-
+use ray_tracing_core::{Color, Rgb, color};
 use rayon::prelude::*;
 
 fn main() -> Result<(), io::Error> {
@@ -33,15 +32,13 @@ fn main() -> Result<(), io::Error> {
             let row = (0..image_width)
                 .into_par_iter() // rayon parallelize
                 .map(|i| {
-                    let r = i as f64 / (image_width - 1) as f64;
-                    let g = j as f64 / (image_height - 1) as f64;
-                    let b = 0.;
+                    let pixel_color = Color::new(
+                        i as f64 / (image_width - 1) as f64,
+                        j as f64 / (image_height - 1) as f64,
+                        0.,
+                    );
 
-                    (
-                        (255.999 * r) as u16,
-                        (255.999 * g) as u16,
-                        (255.999 * b) as u16,
-                    )
+                    color::translate_color(pixel_color)
                 })
                 .collect::<Vec<_>>();
 
@@ -49,7 +46,7 @@ fn main() -> Result<(), io::Error> {
             eprint!("\r\x1B[KScanlines remaining: {}", remaining - 1);
 
             let mut row_bytes = Vec::with_capacity(row.len() * 9);
-            for (r, g, b) in &row {
+            for Rgb { r, g, b } in &row {
                 row_bytes.extend_from_slice(format!("{r} {g} {b}\n").as_bytes());
             }
 
