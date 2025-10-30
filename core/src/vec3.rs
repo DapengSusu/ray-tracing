@@ -54,6 +54,18 @@ impl Vec3 {
         Self::new(value, value, value)
     }
 
+    pub fn with_x(x: f64) -> Self {
+        Self { x, y: 0., z: 0. }
+    }
+
+    pub fn with_y(y: f64) -> Self {
+        Self { x: 0., y, z: 0. }
+    }
+
+    pub fn with_z(z: f64) -> Self {
+        Self { x: 0., y: 0., z }
+    }
+
     pub fn set_x(mut self, x: f64) -> Self {
         self.x = x;
         self

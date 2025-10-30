@@ -1,19 +1,8 @@
 // use std::sync::LazyLock;
 
-use crate::{Color, Rgb};
+use crate::Rgb;
 
-// #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-// pub struct Rgb {
-//     pub r: u8,
-//     pub g: u8,
-//     pub b: u8,
-// }
-
-// impl Display for Rgb {
-//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//         write!(f, "{} {} {}", self.r, self.g, self.b)
-//     }
-// }
+pub use crate::Vec3 as Color;
 
 /// 白色
 pub const COLOR_WHITE: Color = Color {
@@ -31,17 +20,17 @@ pub const COLOR_BLACK: Color = Color {
 
 // static INTENSITY: LazyLock<Interval> = LazyLock::new(|| Interval::new(0., 0.999));
 
-// TODO: 使用From替代
-/// Translate a color into a tuple of bytes
-pub fn translate_color(pixel_color: Color) -> Rgb {
-    let (r, g, b) = pixel_color.into();
+impl From<Color> for Rgb {
+    fn from(pixel_color: Color) -> Self {
+        let (r, g, b) = pixel_color.into();
 
-    // translate the [0, 1] component values to the byte range [0, 255]
-    // Apply a linear to gamma transform for gamma 2
-    Rgb {
-        r: (255.999 * r) as u8,
-        g: (255.999 * g) as u8,
-        b: (255.999 * b) as u8,
+        // translate the [0, 1] component values to the byte range [0, 255]
+        // Apply a linear to gamma transform for gamma 2
+        Rgb {
+            r: (255.999 * r) as u8,
+            g: (255.999 * g) as u8,
+            b: (255.999 * b) as u8,
+        }
     }
 }
 

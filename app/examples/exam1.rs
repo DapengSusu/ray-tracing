@@ -1,6 +1,6 @@
 use std::io;
 
-use ray_tracing_core::{Color, PixelProcessor, PnmImage, Rgb, color};
+use ray_tracing_core::{Color, PixelProcessor, PnmImage, Rgb};
 
 struct BaseProcessor {
     image_width: u32,
@@ -24,7 +24,7 @@ impl PixelProcessor for BaseProcessor {
             0.,
         );
 
-        color::translate_color(pixel_color)
+        pixel_color.into()
     }
 
     fn width(&self) -> u32 {
