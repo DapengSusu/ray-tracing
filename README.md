@@ -13,4 +13,7 @@ make run
 git checkout the-next-week
 make bt
 make run
+
+# 切到 dev 分支
+git checkout dev
 ```

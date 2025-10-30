@@ -1,6 +1,6 @@
 use std::io;
 
-use ray_tracing_core::{Color, PixelProcessor, PnmImage, Ray, Rgb, Vec3};
+use ray_tracing_core::{Color, PixelProcessor, PnmImage, Point3, Ray, Rgb, Vec3};
 
 struct Render {
     image_width: u32,
@@ -33,8 +33,28 @@ impl PixelProcessor for Render {
     }
 }
 
+fn hit_sphere(center: Point3, radius: f64, r: &Ray) -> f64 {
+    let oc = center - r.origin;
+    let a = r.direction.length_squared();
+    let h = r.direction.dot(&oc);
+    let c = oc.length_squared() - radius * radius;
+    let discriminant = h * h - a * c;
+
+    if discriminant >= 0. {
+        (h - discriminant.sqrt()) / a
+    } else {
+        -1.
+    }
+}
+
 /// Return the color for a given scene ray
 fn ray_color(r: &Ray) -> Color {
+    let t = hit_sphere(Point3::with_z(-1.), 0.5, r);
+    if t > 0. {
+        let n = (r.at(t) - Vec3::with_z(-1.)).to_unit();
+        return 0.5 * Color::new(n.x + 1., n.y + 1., n.z + 1.);
+    }
+
     let unit_direction = r.direction.to_unit();
     let a = 0.5 * (unit_direction.y + 1.);
 
