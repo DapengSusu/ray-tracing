@@ -1,0 +1,94 @@
+use std::sync::LazyLock;
+
+use rand::distr::{Distribution, Uniform, uniform::SampleUniform};
+
+static RANDOM_RANGE: LazyLock<Uniform<f64>> = LazyLock::new(|| Uniform::new(0., 1.).unwrap());
+
+/// UV坐标
+#[derive(Debug, Default, Clone)]
+pub struct UvCoord {
+    pub u: f64,
+    pub v: f64,
+}
+
+impl UvCoord {
+    pub fn new(u: f64, v: f64) -> Self {
+        Self { u, v }
+    }
+}
+
+/// Generate a random floating-point number between 0 and 1.
+///
+/// # Examples
+///
+/// ```rust
+/// # use ray_tracing_core::common;
+/// assert!((0. ..1.).contains(&common::random()));
+/// ```
+///
+/// # Note
+///
+/// [0, 1)
+pub fn random() -> f64 {
+    RANDOM_RANGE.sample(&mut rand::rng())
+}
+
+/// Generate a random value between `min` and `max`.
+///
+/// # Examples
+///
+/// ```rust
+/// # use ray_tracing_core::common;
+/// // floating-point number
+/// assert!((5.2..12.5).contains(&common::random_range(5.2, 12.5)));
+/// // integer
+/// assert!((5..12).contains(&common::random_range(5, 12)));
+/// // character
+/// assert!(('a'..='z').contains(&common::random_range('a', 'z')));
+/// ```
+///
+/// # Note
+///
+/// [min, max)
+pub fn random_range<T: SampleUniform>(min: T, max: T) -> T {
+    Uniform::new(min, max).unwrap().sample(&mut rand::rng())
+}
+
+/// Check if two f64 values are relatively equal within a given epsilon.
+///
+/// # Note
+///
+/// if `epsilon` is `None`, the default epsilon is 1e-8.
+/// but if `epsilon` is `Some(...)`, it will be less than 1e-12.
+pub fn relative_eq(a: f64, b: f64, epsilon: Option<f64>) -> bool {
+    let max_val = a.abs().max(b.abs()).max(f64::MIN_POSITIVE);
+
+    (a - b).abs() < epsilon.unwrap_or(1e-8).max(1e-12) * max_val
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn random_should_between_0_and_1() {
+        assert!((0. ..1.).contains(&random()));
+    }
+
+    #[test]
+    fn random_range_should_work() {
+        assert!((0.2..0.5).contains(&random_range(0.2, 0.5)));
+
+        for _ in 0..100 {
+            assert_eq!(random_range('a', 'b'), 'a');
+            assert_eq!(random_range(1_u32, 2), 1);
+        }
+    }
+
+    #[test]
+    fn relative_eq_should_work() {
+        assert!(relative_eq(1., 1.000000001, None));
+        assert!(relative_eq(1., 1.00000001, None));
+        assert!(!relative_eq(1., 1.00000002, None));
+    }
+}

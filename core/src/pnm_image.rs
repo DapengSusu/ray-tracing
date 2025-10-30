@@ -9,46 +9,36 @@ use std::{
 
 use rayon::prelude::*;
 
-pub trait PixelProcessor: Send + Sync {
-    /// 在位置 (i, j) 生成一个 Rgb 像素
-    fn process_pixel(&self, i: u32, j: u32) -> Rgb;
+use crate::Renderer;
 
-    fn width(&self) -> u32;
-    fn height(&self) -> u32;
-}
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash)]
 pub struct PnmImage {
     header: PnmHeader,
     data: Vec<Rgb>,
 }
 
 impl PnmImage {
-    pub fn new(magic: PnmFormat) -> Self {
+    pub fn new(magic: PnmFormat, width: u32, height: u32) -> Self {
         Self {
-            header: PnmHeader::new(magic),
+            header: PnmHeader::new(magic, width, height),
             data: Vec::new(),
         }
     }
 
-    pub fn with_capacity(magic: PnmFormat, capacity: usize) -> Self {
+    pub fn with_capacity(magic: PnmFormat, width: u32, height: u32, capacity: usize) -> Self {
         Self {
-            header: PnmHeader::new(magic),
+            header: PnmHeader::new(magic, width, height),
             data: Vec::with_capacity(capacity),
         }
     }
 
     /// 创建空的 PPM 图像
-    pub fn new_ppm_ascii() -> Self {
-        Self::new(PnmFormat::P3)
+    pub fn new_ppm_ascii(width: u32, height: u32) -> Self {
+        Self::new(PnmFormat::P3, width, height)
     }
 
     /// 按照指定的像素处理器生成并保存像素数据
-    pub fn generate<P: PixelProcessor>(&mut self, processor: P) {
-        // 更新图像宽高
-        self.header.width = processor.width();
-        self.header.height = processor.height();
-
+    pub fn generate<P: Renderer>(&mut self, processor: P) {
         // 用于显示处理进度
         let remaining_lines = AtomicU32::new(self.header.height);
 
@@ -59,7 +49,7 @@ impl PnmImage {
             .into_par_iter() // rayon parallelize
             .flat_map(|j| {
                 let row = (0..self.header.width)
-                    .map(|i| processor.process_pixel(i, j))
+                    .map(|i| processor.render(i, j))
                     .collect::<Vec<_>>();
 
                 let remaining = remaining_lines.fetch_sub(1, Ordering::Relaxed);
@@ -148,7 +138,7 @@ impl Display for PnmImage {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Hash)]
 struct PnmHeader {
     /// 文件格式及类型
     magic: PnmFormat,
@@ -161,12 +151,12 @@ struct PnmHeader {
 }
 
 impl PnmHeader {
-    fn new(magic: PnmFormat) -> Self {
+    fn new(magic: PnmFormat, width: u32, height: u32) -> Self {
         let max_color = Self::max_color_by_magic(&magic);
         Self {
             magic,
-            width: 0,
-            height: 0,
+            width,
+            height,
             max_color,
         }
     }
@@ -217,7 +207,7 @@ impl Display for PnmHeader {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Hash)]
 pub enum PnmFormat {
     /// PBM，单色图，ASCII类型
     P1,
@@ -252,7 +242,7 @@ impl Display for PnmFormat {
     }
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Rgb {
     pub r: u8,
     pub g: u8,

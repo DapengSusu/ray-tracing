@@ -1,6 +1,6 @@
 use std::io;
 
-use ray_tracing_core::{Color, PixelProcessor, PnmImage, Rgb};
+use ray_tracing_core::{Color, PnmImage, Renderer, Rgb};
 
 struct BaseProcessor {
     image_width: u32,
@@ -16,8 +16,8 @@ impl BaseProcessor {
     }
 }
 
-impl PixelProcessor for BaseProcessor {
-    fn process_pixel(&self, i: u32, j: u32) -> Rgb {
+impl Renderer for BaseProcessor {
+    fn render(&self, i: u32, j: u32) -> Rgb {
         let pixel_color = Color::new(
             i as f64 / (self.image_width - 1) as f64,
             j as f64 / (self.image_height - 1) as f64,
@@ -26,14 +26,6 @@ impl PixelProcessor for BaseProcessor {
 
         pixel_color.into()
     }
-
-    fn width(&self) -> u32 {
-        self.image_width
-    }
-
-    fn height(&self) -> u32 {
-        self.image_height
-    }
 }
 
 fn main() -> Result<(), io::Error> {
@@ -41,7 +33,7 @@ fn main() -> Result<(), io::Error> {
     let image_height = 256_u32;
 
     let processor = BaseProcessor::new(image_width, image_height);
-    let mut ppm = PnmImage::new_ppm_ascii();
+    let mut ppm = PnmImage::new_ppm_ascii(image_width, image_height);
 
     ppm.generate(processor);
     ppm.write_to_file("images/exam1-out.ppm")?;

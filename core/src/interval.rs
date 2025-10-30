@@ -1,5 +1,5 @@
 /// Manage real-valued intervals with a minimum and a maximum.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Interval {
     pub min: f64,
     pub max: f64,

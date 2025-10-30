@@ -1,58 +1,38 @@
-use std::io;
+use std::{io, sync::Arc};
 
-use ray_tracing_core::{Color, PixelProcessor, PnmImage, Point3, Ray, Rgb, Vec3};
+use ray_tracing_core::{
+    Color, Hittable, HittableObject, Interval, PnmImage, Point3, Ray, Renderer, Rgb, Vec3,
+};
 
-struct Render {
-    image_width: u32,
-    image_height: u32,
-    camera_center: Vec3,
-    pixel00_loc: Vec3,
-    pixel_delta_u: Vec3,
-    pixel_delta_v: Vec3,
+struct Render<'a> {
+    camera_center: &'a Vec3,
+    pixel00_loc: &'a Vec3,
+    pixel_delta_u: &'a Vec3,
+    pixel_delta_v: &'a Vec3,
+    world: Arc<HittableObject>,
 }
 
-impl PixelProcessor for Render {
-    fn process_pixel(&self, i: u32, j: u32) -> Rgb {
+impl<'a> Renderer for Render<'a> {
+    fn render(&self, i: u32, j: u32) -> Rgb {
         let pixel_center =
-            self.pixel00_loc + (i as f64 * self.pixel_delta_u) + (j as f64 * self.pixel_delta_v);
-        let ray_direction = pixel_center - self.camera_center;
-        let r = Ray::new(self.camera_center, ray_direction);
-
-        let pixel_color = ray_color(&r);
+            *self.pixel00_loc + (i as f64 * *self.pixel_delta_u) + (j as f64 * *self.pixel_delta_v);
+        let ray_direction = pixel_center - *self.camera_center;
+        let r = Ray::new(*self.camera_center, ray_direction);
 
         // 将 pixel color 转换为 Rgb
-        pixel_color.into()
-    }
-
-    fn width(&self) -> u32 {
-        self.image_width
-    }
-
-    fn height(&self) -> u32 {
-        self.image_height
+        ray_color(&r, self.world.clone()).into()
     }
 }
 
-fn hit_sphere(center: Point3, radius: f64, r: &Ray) -> f64 {
-    let oc = center - r.origin;
-    let a = r.direction.length_squared();
-    let h = r.direction.dot(&oc);
-    let c = oc.length_squared() - radius * radius;
-    let discriminant = h * h - a * c;
-
-    if discriminant >= 0. {
-        (h - discriminant.sqrt()) / a
-    } else {
-        -1.
-    }
-}
+const HIT_RAY_T: Interval = Interval {
+    min: 0.001,
+    max: f64::INFINITY,
+};
 
 /// Return the color for a given scene ray
-fn ray_color(r: &Ray) -> Color {
-    let t = hit_sphere(Point3::with_z(-1.), 0.5, r);
-    if t > 0. {
-        let n = (r.at(t) - Vec3::with_z(-1.)).to_unit();
-        return 0.5 * Color::new(n.x + 1., n.y + 1., n.z + 1.);
+fn ray_color<H: Hittable>(r: &Ray, world: Arc<H>) -> Color {
+    if let Some(rec) = world.hit(r, &HIT_RAY_T) {
+        return 0.5 * (rec.normal + Color::ONE);
     }
 
     let unit_direction = r.direction.to_unit();
@@ -67,6 +47,14 @@ fn main() -> Result<(), io::Error> {
 
     // Calculate the image height, and ensure that it's at least 1.
     let image_height = ((image_width as f64 / aspect_ratio) as u32).max(1);
+
+    let world = Arc::new(HittableObject::new_list(vec![
+        Arc::new(HittableObject::new_sphere(Point3::with_z(-1.), 0.5)),
+        Arc::new(HittableObject::new_sphere(
+            Point3::new(0., -100.5, -1.),
+            100.,
+        )),
+    ]));
 
     let focal_length = 1.;
     let viewport_height = 2.;
@@ -87,14 +75,13 @@ fn main() -> Result<(), io::Error> {
     let pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
     let processor = Render {
-        image_width,
-        image_height,
-        camera_center,
-        pixel00_loc,
-        pixel_delta_u,
-        pixel_delta_v,
+        camera_center: &camera_center,
+        pixel00_loc: &pixel00_loc,
+        pixel_delta_u: &pixel_delta_u,
+        pixel_delta_v: &pixel_delta_v,
+        world,
     };
-    let mut ppm = PnmImage::new_ppm_ascii();
+    let mut ppm = PnmImage::new_ppm_ascii(image_width, image_height);
 
     ppm.generate(processor);
     // ppm.write_to_file("images/out.ppm")?;
